@@ -69,7 +69,7 @@ class EvidenceSynthesisAgent:
             self.groq_enabled = False
             logger.info("No GROQ_API_KEY found. Groq is disabled.")
 
-    async def run(self, document_id: str, title: str, chunks: List[Dict[str, Any]]) -> SynthesisOutput:
+    async def run(self, document_id: str, title: str, chunks: List[Dict[str, Any]], progress_callback=None) -> SynthesisOutput:
         """Run evidence synthesis on document chunks in parallel batches using asyncio.gather."""
         if not chunks:
             return SynthesisOutput(claims=[], evidence=[], assumptions_extracted=[], quality_metrics={"status": "empty"})
@@ -80,12 +80,20 @@ class EvidenceSynthesisAgent:
         
         logger.info(f"Splitting {len(chunks)} chunks into {len(chunk_batches)} parallel batches for processing.")
         
-        tasks = []
+        results = []
         for i, batch in enumerate(chunk_batches):
             batch_title = f"{title} (Part {i+1})"
-            tasks.append(self._process_batch(document_id, batch_title, batch))
+            try:
+                res = await self._process_batch(document_id, batch_title, batch)
+                results.append(res)
+            except Exception as e:
+                logger.error(f"Error processing batch: {e}", exc_info=True)
+                results.append(e)
             
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+            # Update progress after each batch
+            if progress_callback:
+                percent = int(((i + 1) / len(chunk_batches)) * 100)
+                await progress_callback(percent)
         
         merged_claims = []
         merged_evidence = []

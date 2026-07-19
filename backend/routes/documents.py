@@ -143,16 +143,14 @@ async def get_document_status(
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
         
-    # Calculate age
-    now = datetime.now(timezone.utc).replace(tzinfo=None)
-    age_seconds = (now - doc.created_at).total_seconds() if doc.created_at else 0
-    
-    is_done = (claims_count > 0 or evidence_count > 0 or age_seconds > 20)
+    # Using real database columns for status Tracking
+    is_done = doc.processing_status == "completed" or doc.processing_status == "failed"
     
     return {
         "id": document_id,
         "is_done": is_done,
+        "status": doc.processing_status,
+        "progress": doc.processing_progress,
         "claims_count": claims_count,
-        "evidence_count": evidence_count,
-        "age_seconds": age_seconds
+        "evidence_count": evidence_count
     }

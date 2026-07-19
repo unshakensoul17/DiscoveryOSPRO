@@ -44,8 +44,19 @@ def run_evidence_synthesis(document_id: str, workspace_id: str):
         agent = EvidenceSynthesisAgent()
         import asyncio
 
+        async def update_progress(percent: int):
+            try:
+                db_session = SessionLocal()
+                d = db_session.query(Document).filter(Document.id == document_id).first()
+                if d:
+                    d.processing_progress = percent
+                    db_session.commit()
+                db_session.close()
+            except Exception as e:
+                logger.error(f"Failed to update progress: {e}")
+
         async def _full_pipeline():
-            syn = await agent.run(document_id, doc.title, chunks)
+            syn = await agent.run(document_id, doc.title, chunks, progress_callback=update_progress)
             return syn
 
         synthesis = asyncio.run(_full_pipeline())
@@ -144,8 +155,12 @@ def run_evidence_synthesis(document_id: str, workspace_id: str):
             discovery_engine = DiscoveryEngine(db)
             return await discovery_engine.run(workspace_id)
 
-        import asyncio
         discoveries_count = asyncio.run(process_knowledge_and_discoveries())
+        
+        # Set doc status to completed
+        doc.processing_status = "completed"
+        doc.processing_progress = 100
+        db.commit()
         
         logger.info(f"Ingestion completed. Knowledge states refreshed, {discoveries_count} active discoveries generated.")
         
@@ -159,6 +174,13 @@ def run_evidence_synthesis(document_id: str, workspace_id: str):
     except Exception as e:
         logger.error(f"Error executing run_evidence_synthesis task: {e}", exc_info=True)
         db.rollback()
+        try:
+            doc = db.query(Document).filter(Document.id == document_id).first()
+            if doc:
+                doc.processing_status = "failed"
+                db.commit()
+        except:
+            pass
         return {"status": "failed", "error": str(e)}
     finally:
         db.close()
