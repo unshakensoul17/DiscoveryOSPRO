@@ -9,7 +9,7 @@ class DocumentProcessor:
     def __init__(self):
         pass
 
-    def extract_and_chunk(self, file_path: str, chunk_size: int = 4000, chunk_overlap: int = 400) -> List[Dict[str, Any]]:
+    def extract_and_chunk(self, file_path: str, chunk_size: int = 15000, chunk_overlap: int = 1500) -> List[Dict[str, Any]]:
         """Extract text from the file and split it into chunks with overlap. Smart chunking for CSVs."""
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found at {file_path}")

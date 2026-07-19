@@ -75,7 +75,9 @@ class EvidenceSynthesisAgent:
             return SynthesisOutput(claims=[], evidence=[], assumptions_extracted=[], quality_metrics={"status": "empty"})
 
         # Group chunks into small batches to prevent LLM payload limits and process in parallel
-        batch_size = 5
+        # Batch size of 2 perfectly packs ~6,600 tokens (well within Groq's 8k limit) 
+        # based on the 15,000 char (2500 word) chunk size from DocumentProcessor.
+        batch_size = 2
         chunk_batches = [chunks[i : i + batch_size] for i in range(0, len(chunks), batch_size)]
         
         logger.info(f"Splitting {len(chunks)} chunks into {len(chunk_batches)} parallel batches for processing.")
