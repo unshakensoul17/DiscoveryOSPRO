@@ -46,6 +46,9 @@ class DiscoveryEngine:
 
             # Create a set of (type, affected_claim_id) that are currently detected
             detected_keys = {(d.type, d.affected_claim_id) for d in discoveries}
+            
+            # Create a dictionary of existing active discoveries
+            active_db_dict = {(d.type, d.affected_claim_id): d for d in active_in_db}
 
             # 2. If an active discovery is no longer in detected_keys, mark it as resolved
             resolved_count = 0
@@ -58,14 +61,7 @@ class DiscoveryEngine:
             count = 0
             for d in discoveries:
                 # Avoid duplicate active discoveries of the same type on the same claim
-                existing = self.db.query(Discovery).filter(
-                    Discovery.workspace_id == workspace_id,
-                    Discovery.type == d.type,
-                    Discovery.affected_claim_id == d.affected_claim_id,
-                    Discovery.status == DiscoveryStatus.ACTIVE
-                ).first()
-
-                if not existing:
+                if (d.type, d.affected_claim_id) not in active_db_dict:
                     self.db.add(d)
                     count += 1
             
@@ -172,6 +168,24 @@ class DiscoveryEngine:
             Claim.deleted_at.is_(None)
         ).all()
 
+        ks_ids = [c.knowledge_state.id for c in claims if c.knowledge_state]
+        if not ks_ids:
+            return []
+
+        # Fetch all history for all relevant knowledge states in one query to prevent N+1
+        all_history = self.db.query(KnowledgeStateHistory).filter(
+            KnowledgeStateHistory.knowledge_state_id.in_(ks_ids)
+        ).order_by(
+            KnowledgeStateHistory.knowledge_state_id,
+            KnowledgeStateHistory.timestamp.desc()
+        ).all()
+
+        from collections import defaultdict
+        history_map = defaultdict(list)
+        for h in all_history:
+            if len(history_map[h.knowledge_state_id]) < 7:
+                history_map[h.knowledge_state_id].append(h)
+
         discoveries = []
         for claim in claims:
             ks = claim.knowledge_state
@@ -179,9 +193,7 @@ class DiscoveryEngine:
                 continue
 
             # Look at history for the last 7 updates
-            history = self.db.query(KnowledgeStateHistory).filter(
-                KnowledgeStateHistory.knowledge_state_id == ks.id
-            ).order_by(KnowledgeStateHistory.timestamp.desc()).limit(7).all()
+            history = history_map.get(ks.id, [])
 
             if len(history) < 2:
                 continue
@@ -250,6 +262,15 @@ class DiscoveryEngine:
             Claim.deleted_at.is_(None)
         ).all()
 
+        # Query all assumptions ONCE outside the loop to prevent N+1 queries
+        assumptions = self.db.query(Claim).options(
+            joinedload(Claim.knowledge_state)
+        ).filter(
+            Claim.workspace_id == workspace_id,
+            Claim.type == "assumption",
+            Claim.deleted_at.is_(None)
+        ).all()
+
         discoveries = []
         for claim in claims:
             ks = claim.knowledge_state
@@ -260,11 +281,6 @@ class DiscoveryEngine:
             # In our simplified schema, assumptions are claim records with type='assumption'
             # and low confidence. If they belong to the same workspace and are related.
             # We can run a search for assumptions that contain terms matching the claim.
-            assumptions = self.db.query(Claim).filter(
-                Claim.workspace_id == workspace_id,
-                Claim.type == "assumption",
-                Claim.deleted_at.is_(None)
-            ).all()
 
             for assoc in assumptions:
                 assoc_ks = assoc.knowledge_state
