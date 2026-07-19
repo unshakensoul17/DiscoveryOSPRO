@@ -18,7 +18,8 @@ setup_logging()
 setup_error_handlers(app)
 logger = logging.getLogger(__name__)
 
-# Middleware
+# Middleware — order matters: LAST added = OUTERMOST (first to run)
+# TrustedHost must be inner, CORS must be outermost to always inject headers
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 app.add_middleware(
     CORSMiddleware,
@@ -26,6 +27,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Routes
