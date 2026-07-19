@@ -3,7 +3,7 @@ import datetime
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 from jose import jwt
-from passlib.context import CryptContext
+import bcrypt
 from pydantic import BaseModel
 
 from database import get_db
@@ -12,7 +12,11 @@ from config import settings
 
 router = APIRouter(prefix="/auth")
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+def _hash_password(password: str) -> str:
+    return bcrypt.hashpw(password[:72].encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+def _verify_password(password: str, hashed: str) -> bool:
+    return bcrypt.checkpw(password[:72].encode("utf-8"), hashed.encode("utf-8"))
 
 class LoginRequest(BaseModel):
     email: str
@@ -33,14 +37,14 @@ async def login(request: LoginRequest, db: Session = Depends(get_db)):
     
     if user:
         # Verify password
-        if not pwd_context.verify(request.password, user.hashed_password):
+        if not _verify_password(request.password, user.hashed_password):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Incorrect password for this user email"
             )
     else:
         # Auto-signup user
-        hashed_password = pwd_context.hash(request.password)
+        hashed_password = _hash_password(request.password)
         name = email_clean.split("@")[0].capitalize() if "@" in email_clean else email_clean.capitalize()
         user = User(
             id=str(uuid.uuid4()),
