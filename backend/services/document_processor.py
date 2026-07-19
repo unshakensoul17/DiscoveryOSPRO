@@ -77,8 +77,9 @@ class DocumentProcessor:
                             "char_count": len(",".join(headers))
                         }]
                     
-                    # Group ~50 rows per chunk to avoid blowing up the LLM with too many tiny calls
-                    ROWS_PER_CHUNK = 50
+                    # Group ~20 rows per chunk to prevent hitting Groq 8k token limits 
+                    # and to ensure the LLM doesn't suffer from "lost in the middle" missing claims.
+                    ROWS_PER_CHUNK = 20
                     chunk_idx = 0
                     
                     for i in range(0, len(data_rows), ROWS_PER_CHUNK):
