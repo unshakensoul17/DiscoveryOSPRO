@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
-from typing import List
+from pydantic import field_validator
+from typing import List, Union
 
 class Settings(BaseSettings):
     # Database
@@ -23,10 +24,25 @@ class Settings(BaseSettings):
     AWS_S3_BUCKET: str = "discoveryos-uploads"
     
     # CORS
-    CORS_ORIGINS: List[str] = [
+    CORS_ORIGINS: Union[str, List[str]] = [
         "http://localhost:3000",
-        "https://app.discoveryos.com"
+        "https://discovery-ospro.vercel.app",
     ]
+
+    @field_validator("CORS_ORIGINS", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, v):
+        if isinstance(v, list):
+            return v
+        if isinstance(v, str):
+            import json
+            # Try JSON array first e.g. '["https://..."]'
+            stripped = v.strip()
+            if stripped.startswith("["):
+                return json.loads(stripped)
+            # Fallback: comma-separated string e.g. "https://a.com,https://b.com"
+            return [origin.strip() for origin in stripped.split(",") if origin.strip()]
+        return v
     
     # Environment
     ENV: str = "development"
