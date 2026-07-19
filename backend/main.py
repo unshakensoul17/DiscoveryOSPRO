@@ -1,0 +1,62 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+import logging
+
+# Register all database models
+import models
+
+from config import Settings
+from routes import claims, evidence, discoveries, auth, workspaces, documents
+from middleware.error_handler import setup_error_handlers
+from middleware.logging import setup_logging
+
+# Setup
+settings = Settings()
+app = FastAPI(title="DiscoveryOS", version="0.1.0")
+setup_logging()
+setup_error_handlers(app)
+logger = logging.getLogger(__name__)
+
+# Middleware
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Routes
+from fastapi import APIRouter
+
+api_router = APIRouter(prefix="/v1")
+api_router.include_router(auth.router, tags=["auth"])
+api_router.include_router(claims.router)
+api_router.include_router(evidence.router)
+api_router.include_router(discoveries.router)
+api_router.include_router(workspaces.router)
+api_router.include_router(documents.router)
+
+
+app.include_router(api_router)
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint."""
+    return {"status": "healthy"}
+
+@app.get("/")
+async def root():
+    """Root endpoint."""
+    return {"message": "DiscoveryOS API"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=settings.ENV == "development"
+    )
