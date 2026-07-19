@@ -136,12 +136,12 @@ class DiscoveryEngine:
             if not evidence:
                 continue
 
-            # Find oldest evidence
+            # Find newest evidence
             valid_evidence = [e for e in evidence if e.created_at is not None]
             if not valid_evidence:
                 continue
-            oldest = min(valid_evidence, key=lambda e: e.created_at)
-            days_old = (datetime.utcnow() - oldest.created_at).days
+            newest = max(valid_evidence, key=lambda e: e.created_at)
+            days_old = (datetime.utcnow() - newest.created_at).days
 
             if days_old > threshold_days:
                 severity = min((days_old - threshold_days) / 180.0, 1.0)
@@ -151,7 +151,7 @@ class DiscoveryEngine:
                     type=DiscoveryType.STALE_EVIDENCE,
                     severity=severity,
                     description=f"Supporting evidence for claim is stale ({days_old} days old)",
-                    reasoning=f"Evidence '{oldest.content[:60]}' was created on {oldest.created_at.date()}, exceeding the staleness threshold of {threshold_days} days.",
+                    reasoning=f"Evidence '{newest.content[:60]}' was created on {newest.created_at.date()}, exceeding the staleness threshold of {threshold_days} days.",
                     affected_claim_id=claim.id,
                     status=DiscoveryStatus.ACTIVE,
                     detected_at=datetime.utcnow()
@@ -278,11 +278,14 @@ class DiscoveryEngine:
                 continue
 
             # Check if this claim is linked to any active unvalidated assumptions.
-            # In our simplified schema, assumptions are claim records with type='assumption'
-            # and low confidence. If they belong to the same workspace and are related.
-            # We can run a search for assumptions that contain terms matching the claim.
+            claim_words = set(w.lower() for w in claim.content.split() if len(w) > 4)
 
             for assoc in assumptions:
+                # Basic relation check: Do they share at least 2 significant words?
+                assoc_words = set(w.lower() for w in assoc.content.split() if len(w) > 4)
+                if len(claim_words.intersection(assoc_words)) < 2:
+                    continue
+
                 assoc_ks = assoc.knowledge_state
                 if assoc_ks and assoc_ks.belief_confidence < 0.40:
                     # High exposure
