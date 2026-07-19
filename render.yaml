@@ -28,7 +28,7 @@ services:
       
       # Model configurations
       - key: AI_PRIMARY_MODEL
-        value: gemini-1.5-pro
+        value: gemini-3.1-flash-lite
       
       - key: AI_FALLBACK_MODEL
         value: llama-3.1-70b-versatile
