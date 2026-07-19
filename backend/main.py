@@ -21,6 +21,8 @@ logger = logging.getLogger(__name__)
 # Middleware — order matters: LAST added = OUTERMOST (first to run)
 # TrustedHost must be inner, CORS must be outermost to always inject headers
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
+from fastapi.middleware.gzip import GZipMiddleware
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,

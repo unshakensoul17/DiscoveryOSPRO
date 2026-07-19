@@ -9,11 +9,12 @@ logger = logging.getLogger(__name__)
 db_url = settings.DATABASE_URL
 connect_args = {}
 
-if db_url.startswith("sqlite"):
-    connect_args = {"check_same_thread": False}
-
 try:
-    engine = create_engine(db_url, connect_args=connect_args)
+    if db_url.startswith("sqlite"):
+        connect_args = {"check_same_thread": False}
+        engine = create_engine(db_url, connect_args=connect_args)
+    else:
+        engine = create_engine(db_url, connect_args=connect_args, pool_size=20, max_overflow=10)
     # Test connection
     conn = engine.connect()
     conn.close()
