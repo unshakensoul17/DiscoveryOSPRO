@@ -1,7 +1,7 @@
 import logging
 import uuid
 from datetime import datetime, timedelta
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from models.claim import Claim, ClaimStatus
 from models.evidence import Evidence, EvidencePolarity
 from models.discovery import Discovery, DiscoveryType, DiscoveryStatus
@@ -80,17 +80,17 @@ class DiscoveryEngine:
 
     async def _detect_contradictions(self, workspace_id: str) -> list[Discovery]:
         """Find claims with significant contradicting evidence."""
-        claims = self.db.query(Claim).filter(
+        claims = self.db.query(Claim).options(
+            joinedload(Claim.evidence)
+        ).filter(
             Claim.workspace_id == workspace_id,
             Claim.deleted_at.is_(None)
         ).all()
 
         discoveries = []
         for claim in claims:
-            evidence = self.db.query(Evidence).filter(
-                Evidence.claim_id == claim.id,
-                Evidence.deleted_at.is_(None)
-            ).all()
+            # Evidence already prefetched via joinedload
+            evidence = [e for e in claim.evidence if e.deleted_at is None]
 
             supporting = [e for e in evidence if e.polarity == EvidencePolarity.SUPPORTING]
             contradicting = [e for e in evidence if e.polarity == EvidencePolarity.CONTRADICTING]
@@ -125,17 +125,17 @@ class DiscoveryEngine:
 
     async def _detect_stale_evidence(self, workspace_id: str, threshold_days: int = 14) -> list[Discovery]:
         """Find claims supported by old evidence."""
-        claims = self.db.query(Claim).filter(
+        claims = self.db.query(Claim).options(
+            joinedload(Claim.evidence)
+        ).filter(
             Claim.workspace_id == workspace_id,
             Claim.deleted_at.is_(None)
         ).all()
 
         discoveries = []
         for claim in claims:
-            evidence = self.db.query(Evidence).filter(
-                Evidence.claim_id == claim.id,
-                Evidence.deleted_at.is_(None)
-            ).all()
+            # Evidence already prefetched via joinedload
+            evidence = [e for e in claim.evidence if e.deleted_at is None]
 
             if not evidence:
                 continue
@@ -165,7 +165,9 @@ class DiscoveryEngine:
 
     async def _detect_belief_drift(self, workspace_id: str) -> list[Discovery]:
         """Find claims where confidence is declining based on history."""
-        claims = self.db.query(Claim).filter(
+        claims = self.db.query(Claim).options(
+            joinedload(Claim.knowledge_state)
+        ).filter(
             Claim.workspace_id == workspace_id,
             Claim.deleted_at.is_(None)
         ).all()
@@ -208,17 +210,17 @@ class DiscoveryEngine:
 
     async def _detect_research_bias(self, workspace_id: str) -> list[Discovery]:
         """Find claims supported by a single source type (lack of diverse evidence)."""
-        claims = self.db.query(Claim).filter(
+        claims = self.db.query(Claim).options(
+            joinedload(Claim.evidence)
+        ).filter(
             Claim.workspace_id == workspace_id,
             Claim.deleted_at.is_(None)
         ).all()
 
         discoveries = []
         for claim in claims:
-            evidence = self.db.query(Evidence).filter(
-                Evidence.claim_id == claim.id,
-                Evidence.deleted_at.is_(None)
-            ).all()
+            # Evidence already prefetched via joinedload
+            evidence = [e for e in claim.evidence if e.deleted_at is None]
 
             if len(evidence) < 3:
                 continue
@@ -241,7 +243,9 @@ class DiscoveryEngine:
 
     async def _detect_assumption_exposure(self, workspace_id: str) -> list[Discovery]:
         """Find high-confidence claims depending on unvalidated assumptions."""
-        claims = self.db.query(Claim).filter(
+        claims = self.db.query(Claim).options(
+            joinedload(Claim.knowledge_state)
+        ).filter(
             Claim.workspace_id == workspace_id,
             Claim.deleted_at.is_(None)
         ).all()

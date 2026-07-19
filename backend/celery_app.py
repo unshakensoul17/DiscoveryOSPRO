@@ -5,11 +5,12 @@ from celery import Celery
 redis_url = os.environ.get("REDIS_URL", "")
 
 def is_redis_available(url: str) -> bool:
-    if not url or not url.startswith("redis://"):
+    if not url or not url.startswith(("redis://", "rediss://")):
         return False
     try:
         # Parse redis://[password@]host:port[/db]
-        addr = url.split("redis://")[1].split("/")[0]
+        # Strip scheme (redis:// or rediss://)
+        addr = url.split("//")[1].split("/")[0]
         if "@" in addr:
             addr = addr.split("@")[1]
         if ":" in addr:

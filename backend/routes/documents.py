@@ -17,6 +17,8 @@ router = APIRouter(
 )
 
 UPLOAD_DIR = "./uploads"
+ALLOWED_EXTENSIONS = {".pdf", ".txt", ".docx", ".json", ".csv", ".md"}
+MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024  # 20 MB
 
 @router.post("/ingest")
 async def ingest_document(
@@ -33,13 +35,26 @@ async def ingest_document(
     
     # Save file to disk
     file_id = str(uuid.uuid4())
-    file_ext = os.path.splitext(file.filename)[1]
+    file_ext = os.path.splitext(file.filename)[1].lower()
+
+    # Validate file type
+    if file_ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File type '{file_ext}' not allowed. Accepted: {', '.join(ALLOWED_EXTENSIONS)}"
+        )
+
     safe_filename = f"{file_id}{file_ext}"
     file_path = os.path.join(ws_upload_dir, safe_filename)
     
     try:
         with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+            content = await file.read()
+            if len(content) > MAX_FILE_SIZE_BYTES:
+                raise HTTPException(status_code=413, detail="File too large. Maximum size is 20MB.")
+            buffer.write(content)
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
         

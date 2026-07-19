@@ -40,11 +40,15 @@ def run_evidence_synthesis(document_id: str, workspace_id: str):
             logger.warning(f"No content extracted from document {document_id}")
             return {"status": "completed", "claims_count": 0, "evidence_count": 0}
         
-        # 3. Synthesize claims and evidence
+        # 3. Synthesize claims and evidence — combined into a single async pipeline
         agent = EvidenceSynthesisAgent()
-        # We run this synchronously inside the background thread
         import asyncio
-        synthesis = asyncio.run(agent.run(document_id, doc.title, chunks))
+
+        async def _full_pipeline():
+            syn = await agent.run(document_id, doc.title, chunks)
+            return syn
+
+        synthesis = asyncio.run(_full_pipeline())
         
         logger.info(f"Synthesized {len(synthesis.claims)} claims and {len(synthesis.evidence)} evidence records")
         
@@ -121,17 +125,22 @@ def run_evidence_synthesis(document_id: str, workspace_id: str):
             
         db.commit()
         
-        # 6. Recalculate confidence & update knowledge state for each claim, then run Discovery Engine inside a single event loop
+        # 6. Recalculate confidence only for newly extracted claims, then run Discovery Engine
+        new_claim_ids = [v for v in claim_map.values()]
+
         async def process_knowledge_and_discoveries():
             ks_service = KnowledgeStateService(db)
-            claims_in_ws = db.query(Claim).filter(Claim.workspace_id == workspace_id, Claim.deleted_at.is_(None)).all()
-            for claim in claims_in_ws:
+            # Only refresh claims extracted from this document
+            new_claims = db.query(Claim).filter(
+                Claim.id.in_(new_claim_ids),
+                Claim.deleted_at.is_(None)
+            ).all()
+            for claim in new_claims:
                 await ks_service.update_knowledge_state(
                     claim_id=claim.id,
                     workspace_id=workspace_id,
                     trigger_reason=f"Ingestion of document {doc.title}"
                 )
-            
             discovery_engine = DiscoveryEngine(db)
             return await discovery_engine.run(workspace_id)
 

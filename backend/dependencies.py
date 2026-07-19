@@ -21,8 +21,8 @@ def get_current_user(
         
     token = credentials.credentials
     
-    # Check for demo tokens
-    if token in ("demo-token", "mock-access-token"):
+    # Check for demo tokens — only allowed in development mode
+    if token in ("demo-token", "mock-access-token") and settings.ENV == "development":
         # Ensure demo user exists in database
         demo_id = "u-demo" if token == "demo-token" else "1"
         demo_email = "researcher@discoveryos.io" if token == "demo-token" else "user@example.com"
@@ -95,10 +95,11 @@ def verify_workspace(
     current_user = Depends(get_current_user)
 ):
     from models.workspace import Workspace
+    from sqlalchemy import or_
     user_id = current_user.get("id")
     ws = db.query(Workspace).filter(
         Workspace.id == workspace_id,
-        Workspace.owner_id == user_id,
+        or_(Workspace.owner_id == user_id, Workspace.owner_id.is_(None)),
         Workspace.deleted_at.is_(None)
     ).first()
     if not ws:

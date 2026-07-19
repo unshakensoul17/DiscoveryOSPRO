@@ -38,7 +38,7 @@ services:
         generateValue: true
       
       - key: PYTHONPATH
-        value: .
+        value: backend
 
   # 2. Redis Cache/Broker Service
   - type: redis
