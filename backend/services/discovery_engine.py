@@ -38,7 +38,23 @@ class DiscoveryEngine:
             exposure_discoveries = await self._detect_assumption_exposure(workspace_id)
             discoveries.extend(exposure_discoveries)
 
-            # Persist discoveries
+            # 1. Fetch all currently active discoveries in the DB for this workspace
+            active_in_db = self.db.query(Discovery).filter(
+                Discovery.workspace_id == workspace_id,
+                Discovery.status == DiscoveryStatus.ACTIVE
+            ).all()
+
+            # Create a set of (type, affected_claim_id) that are currently detected
+            detected_keys = {(d.type, d.affected_claim_id) for d in discoveries}
+
+            # 2. If an active discovery is no longer in detected_keys, mark it as resolved
+            resolved_count = 0
+            for db_disc in active_in_db:
+                if (db_disc.type, db_disc.affected_claim_id) not in detected_keys:
+                    db_disc.status = DiscoveryStatus.RESOLVED
+                    resolved_count += 1
+
+            # 3. Persist new discoveries
             count = 0
             for d in discoveries:
                 # Avoid duplicate active discoveries of the same type on the same claim
@@ -54,7 +70,7 @@ class DiscoveryEngine:
                     count += 1
             
             self.db.commit()
-            logger.info(f"Discovery Engine run complete. Created {count} new discoveries.")
+            logger.info(f"Discovery Engine run complete. Created {count} new discoveries, resolved {resolved_count} old discoveries.")
             return count
 
         except Exception as e:

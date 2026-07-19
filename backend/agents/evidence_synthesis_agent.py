@@ -1,10 +1,12 @@
+import asyncio
 import json
 import logging
 import re
 import uuid
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 import httpx
 from config import settings
 
@@ -45,15 +47,16 @@ class EvidenceSynthesisAgent:
         self.groq_key = groq_key or settings.GROQ_API_KEY
         self.primary_model = primary_model or settings.AI_PRIMARY_MODEL
         self.fallback_model = fallback_model or settings.AI_FALLBACK_MODEL
+        self.gemini_client = None
 
-        # Configure Google Generative AI
+        # Configure Google GenAI Client
         if self.gemini_key:
             try:
-                genai.configure(api_key=self.gemini_key)
+                self.gemini_client = genai.Client(api_key=self.gemini_key)
                 self.gemini_enabled = True
-                logger.info("Google Generative AI client successfully configured.")
+                logger.info("Google GenAI client successfully configured.")
             except Exception as e:
-                logger.error(f"Failed to configure Google Generative AI client: {e}")
+                logger.error(f"Failed to configure Google GenAI client: {e}")
                 self.gemini_enabled = False
         else:
             self.gemini_enabled = False
@@ -67,29 +70,97 @@ class EvidenceSynthesisAgent:
             logger.info("No GROQ_API_KEY found. Groq is disabled.")
 
     async def run(self, document_id: str, title: str, chunks: List[Dict[str, Any]]) -> SynthesisOutput:
-        """Run evidence synthesis on document chunks."""
+        """Run evidence synthesis on document chunks in parallel batches using asyncio.gather."""
         if not chunks:
             return SynthesisOutput(claims=[], evidence=[], assumptions_extracted=[], quality_metrics={"status": "empty"})
 
+        # Group chunks into small batches to prevent LLM payload limits and process in parallel
+        batch_size = 5
+        chunk_batches = [chunks[i : i + batch_size] for i in range(0, len(chunks), batch_size)]
+        
+        logger.info(f"Splitting {len(chunks)} chunks into {len(chunk_batches)} parallel batches for processing.")
+        
+        tasks = []
+        for i, batch in enumerate(chunk_batches):
+            batch_title = f"{title} (Part {i+1})"
+            tasks.append(self._process_batch(document_id, batch_title, batch))
+            
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        merged_claims = []
+        merged_evidence = []
+        merged_assumptions = []
+        coverage_estimates = []
+        extraction_confidences = []
+        default_claims = []
+        
+        for res in results:
+            if isinstance(res, Exception):
+                logger.error(f"Error processing batch in parallel gather: {res}", exc_info=True)
+                continue
+            if not res:
+                continue
+                
+            for c in res.claims:
+                if c.content.startswith("Information extracted from"):
+                    default_claims.append(c)
+                else:
+                    merged_claims.append(c)
+                    
+            merged_evidence.extend(res.evidence)
+            merged_assumptions.extend(res.assumptions_extracted)
+            
+            metrics = res.quality_metrics or {}
+            if "coverage_estimate" in metrics:
+                try:
+                    coverage_estimates.append(float(metrics["coverage_estimate"]))
+                except (ValueError, TypeError):
+                    pass
+            if "extraction_confidence" in metrics:
+                try:
+                    extraction_confidences.append(float(metrics["extraction_confidence"]))
+                except (ValueError, TypeError):
+                    pass
+                    
+        # If we have no real claims, but we have default operational fallback claims, keep exactly one default claim
+        if not merged_claims and default_claims:
+            merged_claims.append(default_claims[0])
+            
+        final_coverage = sum(coverage_estimates) / len(coverage_estimates) if coverage_estimates else 0.85
+        final_confidence = sum(extraction_confidences) / len(extraction_confidences) if extraction_confidences else 0.85
+        
+        return SynthesisOutput(
+            claims=merged_claims,
+            evidence=merged_evidence,
+            assumptions_extracted=merged_assumptions,
+            quality_metrics={
+                "extraction_confidence": final_confidence,
+                "coverage_estimate": final_coverage,
+                "batches_processed": len(chunk_batches)
+            }
+        )
+
+    async def _process_batch(self, document_id: str, title: str, batch: List[Dict[str, Any]]) -> SynthesisOutput:
+        """Helper to process a single batch of chunks with fallback logic."""
         # Try Gemini (Primary)
         if self.gemini_enabled:
             try:
-                logger.info(f"Attempting evidence synthesis using Gemini ({self.primary_model})...")
-                return await self._run_gemini(document_id, title, chunks)
+                logger.info(f"Attempting evidence synthesis using Gemini ({self.primary_model}) on batch...")
+                return await self._run_gemini(document_id, title, batch)
             except Exception as e:
-                logger.error(f"Gemini synthesis failed: {e}. Falling back to Groq...")
+                logger.error(f"Gemini synthesis failed for batch: {e}. Falling back to Groq...")
 
         # Try Groq (Fallback)
         if self.groq_enabled:
             try:
-                logger.info(f"Attempting evidence synthesis using Groq ({self.fallback_model})...")
-                return await self._run_groq(document_id, title, chunks)
+                logger.info(f"Attempting evidence synthesis using Groq ({self.fallback_model}) on batch...")
+                return await self._run_groq(document_id, title, batch)
             except Exception as e:
-                logger.error(f"Groq synthesis failed: {e}. Falling back to heuristic parser...")
+                logger.error(f"Groq synthesis failed for batch: {e}. Falling back to heuristic parser...")
 
         # Run local fallback Heuristics parser
-        logger.info("Using local heuristic parser as the final fallback.")
-        return self._run_fallback(document_id, title, chunks)
+        logger.info("Using local heuristic parser as the final fallback for batch.")
+        return self._run_fallback(document_id, title, batch)
 
     async def _run_gemini(self, document_id: str, title: str, chunks: List[Dict[str, Any]]) -> SynthesisOutput:
         chunks_text = "\n---\n".join([
@@ -153,16 +224,16 @@ Return JSON matching this schema:
   }}
 }}"""
 
-        model = genai.GenerativeModel(
-            model_name=self.primary_model,
-            system_instruction=system_prompt
-        )
+        if not self.gemini_client:
+            raise ValueError("Gemini client is not initialized.")
 
         try:
             # First try with JSON response mime type configuration
-            response = await model.generate_content_async(
-                prompt,
-                generation_config=genai.types.GenerationConfig(
+            response = await self.gemini_client.aio.models.generate_content(
+                model=self.primary_model,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_prompt,
                     response_mime_type="application/json",
                     temperature=0.1
                 )
@@ -170,9 +241,11 @@ Return JSON matching this schema:
             response_text = response.text
         except Exception as e:
             logger.warning(f"Gemini generation with application/json failed: {e}. Retrying without mime type config.")
-            response = await model.generate_content_async(
-                prompt,
-                generation_config=genai.types.GenerationConfig(
+            response = await self.gemini_client.aio.models.generate_content(
+                model=self.primary_model,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_prompt,
                     temperature=0.1
                 )
             )

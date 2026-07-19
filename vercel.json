@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://discoveryos-api.onrender.com/v1/$1"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

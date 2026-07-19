@@ -132,7 +132,7 @@ export default function WorkspacesPage() {
                 {ws.id !== 'ws-1' && (
                   <button
                     onClick={(e) => handleDelete(e, ws.id)}
-                    className="absolute top-4 right-4 text-slate-500 hover:text-red-400 p-1 rounded hover:bg-[#1E2538] transition-colors z-20"
+                    className="absolute top-4 right-4 text-slate-500 hover:text-red-600 p-1 rounded hover:bg-red-50 transition-colors z-20"
                     title="Delete Workspace"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -143,9 +143,6 @@ export default function WorkspacesPage() {
 
                 <div>
                   <div className="flex items-center justify-between mb-4 pr-6">
-                    <div className="text-lg font-mono text-blue-400 font-semibold">
-                      {ws.id.toUpperCase()}
-                    </div>
                     <span className="text-[10px] font-mono font-semibold px-2 py-0.5 border border-[#E2E8F0] text-slate-400 rounded-md uppercase tracking-wider bg-slate-100">
                       {ws.role || 'admin'}
                     </span>
@@ -240,7 +237,7 @@ export default function WorkspacesPage() {
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 bg-slate-100 border border-[#E2E8F0] hover:border-slate-300 hover:bg-slate-850 text-slate-700 font-semibold rounded-lg text-xs transition-colors"
+                  className="px-4 py-2 bg-slate-100 border border-[#E2E8F0] hover:border-slate-300 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition-colors"
                 >
                   Cancel
                 </button>

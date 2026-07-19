@@ -107,3 +107,26 @@ async def create_workspace(
             "confidence_decay_rate": 0.05
         }
     }
+
+@router.delete("/{workspace_id}", status_code=204)
+async def delete_workspace(
+    workspace_id: str,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Soft delete a workspace owned by the current user."""
+    from datetime import datetime
+    user_id = current_user.get("id")
+    ws = db.query(Workspace).filter(
+        Workspace.id == workspace_id,
+        Workspace.owner_id == user_id,
+        Workspace.deleted_at.is_(None)
+    ).first()
+    
+    if not ws:
+        raise HTTPException(status_code=404, detail="Workspace not found")
+        
+    ws.deleted_at = datetime.utcnow()
+    db.commit()
+    return None
+

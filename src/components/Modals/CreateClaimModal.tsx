@@ -104,7 +104,7 @@ export default function CreateClaimModal() {
             <button
               type="button"
               onClick={closeCreateClaimModal}
-              className="px-4 py-2 bg-slate-100 border border-[#E2E8F0] hover:border-slate-300 hover:bg-slate-850 text-slate-700 font-semibold rounded-lg text-xs transition-colors"
+              className="px-4 py-2 bg-slate-100 border border-[#E2E8F0] hover:border-slate-300 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition-colors"
             >
               Cancel
             </button>

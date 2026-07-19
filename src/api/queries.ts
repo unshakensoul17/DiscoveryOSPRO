@@ -43,6 +43,7 @@ export function useCreateClaim(workspaceId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['claims', workspaceId] })
+      queryClient.invalidateQueries({ queryKey: ['discoveries', workspaceId] })
     },
   })
 }
@@ -75,6 +76,7 @@ export function useCreateEvidence(workspaceId: string, claimId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['evidence', workspaceId, claimId] })
       queryClient.invalidateQueries({ queryKey: ['claim', workspaceId, claimId] })
+      queryClient.invalidateQueries({ queryKey: ['discoveries', workspaceId] })
     },
   })
 }

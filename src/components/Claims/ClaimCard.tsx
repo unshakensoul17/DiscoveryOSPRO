@@ -15,7 +15,7 @@ export default function ClaimCard({ claim, onSelect, isSelected }: ClaimCardProp
       className={`p-4 rounded-xl border transition-all cursor-pointer ${
         isSelected
           ? 'border-blue-500/80 bg-[#F1F5F9]/90 shadow-lg shadow-blue-550/5'
-          : 'border-[#E2E8F0] bg-[#FFFFFF] hover:border-slate-200 hover:bg-[#121725]'
+          : 'border-[#E2E8F0] bg-[#FFFFFF] hover:border-slate-300 hover:bg-[#F8FAFC]'
       }`}
     >
       {/* Content */}

@@ -41,7 +41,7 @@ export default function Sidebar() {
   return (
     <div className="flex flex-col h-full bg-[#FFFFFF] text-slate-700 p-4">
       {/* Logo Area */}
-      <div className="flex items-center gap-3 px-2 py-4 mb-6 border-b border-[#E2E8F0] overflow-hidden">
+      <div className="flex items-center gap-3 px-2 py-4 mb-4 border-b border-[#E2E8F0] overflow-hidden">
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-lg flex-shrink-0 shadow-lg shadow-blue-500/20">
           D
         </div>
@@ -53,8 +53,8 @@ export default function Sidebar() {
       </div>
 
       {/* Workspace Switcher */}
-      {sidebarOpen && workspaces.length > 0 ? (
-        <div className="mb-6 px-2 animate-fade-in">
+      {sidebarOpen && workspaces.length > 0 && (
+        <div className="mb-4 px-2 animate-fade-in">
           <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2 font-mono">
             Environment
           </label>
@@ -70,8 +70,6 @@ export default function Sidebar() {
             ))}
           </select>
         </div>
-      ) : (
-        <div className="mb-6 h-[52px]" />
       )}
 
       {/* Nav Links */}

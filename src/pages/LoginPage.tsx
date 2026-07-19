@@ -126,7 +126,7 @@ export default function LoginPage() {
             type="button"
             onClick={handleDemoMode}
             disabled={isLoading}
-            className="w-full py-2.5 px-4 bg-slate-100 border border-[#E2E8F0] hover:border-slate-300 hover:bg-slate-850 text-slate-800 font-semibold rounded-lg text-sm transition-all active:scale-[0.98]"
+            className="w-full py-2.5 px-4 bg-slate-100 border border-[#E2E8F0] hover:border-slate-300 hover:bg-slate-200 text-slate-800 font-semibold rounded-lg text-sm transition-all active:scale-[0.98]"
           >
             Launch Demo Workspace
           </button>

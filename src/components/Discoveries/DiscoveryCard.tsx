@@ -31,7 +31,7 @@ export default function DiscoveryCard({ discovery, onSelect }: DiscoveryCardProp
     <motion.div
       whileHover={{ y: -1 }}
       onClick={() => onSelect?.(discovery.id)}
-      className="p-4 rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] hover:border-slate-200 hover:bg-[#121725] transition-all cursor-pointer"
+      className="p-4 rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] hover:border-slate-300 hover:bg-[#F8FAFC] transition-all cursor-pointer"
     >
       {/* Type badge */}
       <div className={`inline-block px-2.5 py-0.5 rounded text-[9px] font-mono font-bold border mb-3 uppercase tracking-wider ${colorClass}`}>
