@@ -1,10 +1,10 @@
 {
   "version": 2,
+  "env": {
+    "VITE_API_URL": "@vite_api_url",
+    "VITE_WS_URL": "@vite_ws_url"
+  },
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "https://discoveryos-api.onrender.com/v1/$1"
-    },
     {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
