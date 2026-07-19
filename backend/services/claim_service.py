@@ -48,7 +48,11 @@ class ClaimService:
         offset: int = 0
     ) -> tuple[List[Claim], int]:
         """List claims with filtering and pagination."""
-        query = self.db.query(Claim).filter(
+        from sqlalchemy.orm import joinedload
+        query = self.db.query(Claim).options(
+            joinedload(Claim.knowledge_state),
+            joinedload(Claim.evidence)
+        ).filter(
             and_(
                 Claim.workspace_id == workspace_id,
                 Claim.deleted_at.is_(None)

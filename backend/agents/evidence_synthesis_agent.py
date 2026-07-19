@@ -151,26 +151,66 @@ class EvidenceSynthesisAgent:
         )
 
     async def _process_batch(self, document_id: str, title: str, batch: List[Dict[str, Any]]) -> SynthesisOutput:
-        """Helper to process a single batch of chunks with fallback logic."""
+        """Helper to process a single batch of chunks with fallback logic and Redis caching."""
+        import hashlib
+        import json
+        
+        # 1. Generate chunk hash for idempotency
+        raw_text = "".join(c.get("content", "") for c in batch)
+        batch_hash = hashlib.sha256(raw_text.encode('utf-8')).hexdigest()
+        cache_key = f"llm_cache:synthesis:{batch_hash}"
+        
+        redis_client = None
+        try:
+            import redis
+            from config import settings
+            redis_client = redis.from_url(settings.REDIS_URL, decode_responses=True)
+            cached_result = redis_client.get(cache_key)
+            if cached_result:
+                logger.info(f"LLM Cache HIT for {cache_key[:15]}! Skipping API call.")
+                # Try Pydantic V2 first, fallback to V1
+                try:
+                    return SynthesisOutput.model_validate_json(cached_result)
+                except AttributeError:
+                    return SynthesisOutput.parse_raw(cached_result)
+        except Exception as e:
+            logger.warning(f"Redis cache check failed: {e}")
+
+        result = None
         # Try Gemini (Primary)
         if self.gemini_enabled:
             try:
                 logger.info(f"Attempting evidence synthesis using Gemini ({self.primary_model}) on batch...")
-                return await self._run_gemini(document_id, title, batch)
+                result = await self._run_gemini(document_id, title, batch)
             except Exception as e:
                 logger.error(f"Gemini synthesis failed for batch: {e}. Falling back to Groq...")
 
         # Try Groq (Fallback)
-        if self.groq_enabled:
+        if not result and self.groq_enabled:
             try:
                 logger.info(f"Attempting evidence synthesis using Groq ({self.fallback_model}) on batch...")
-                return await self._run_groq(document_id, title, batch)
+                result = await self._run_groq(document_id, title, batch)
             except Exception as e:
                 logger.error(f"Groq synthesis failed for batch: {e}. Falling back to heuristic parser...")
 
-        # Run local fallback Heuristics parser
-        logger.info("Using local heuristic parser as the final fallback for batch.")
-        return self._run_fallback(document_id, title, batch)
+        if not result:
+            # Run local fallback Heuristics parser
+            logger.info("Using local heuristic parser as the final fallback for batch.")
+            result = self._run_fallback(document_id, title, batch)
+
+        # Cache the result if successful
+        if result and redis_client:
+            try:
+                # Cache for 30 days
+                try:
+                    json_data = result.model_dump_json()
+                except AttributeError:
+                    json_data = result.json()
+                redis_client.setex(cache_key, 2592000, json_data)
+            except Exception as e:
+                logger.warning(f"Failed to cache LLM result: {e}")
+
+        return result
 
     async def _run_gemini(self, document_id: str, title: str, chunks: List[Dict[str, Any]]) -> SynthesisOutput:
         chunks_text = "\n---\n".join([

@@ -11,13 +11,11 @@ class KnowledgeStateService:
     def __init__(self, db: Session):
         self.db = db
     
-    async def calculate_confidence(self, claim_id: str, workspace_id: str) -> float:
-        """Calculate confidence for a claim from its evidence."""
-        evidence_list = self.db.query(Evidence).filter(
-            Evidence.claim_id == claim_id,
-            Evidence.deleted_at.is_(None)
-        ).all()
-        
+    async def calculate_confidence(self, evidence_list: list[Evidence]) -> float:
+        """Calculate confidence for a claim from its provided evidence list."""
+        if not evidence_list:
+            return 0.0
+
         supporting = [e for e in evidence_list if e.polarity == "supporting"]
         contradicting = [e for e in evidence_list if e.polarity == "contradicting"]
         
@@ -76,16 +74,12 @@ class KnowledgeStateService:
         if not evidence_list and initial_confidence is not None:
             new_confidence = initial_confidence
         else:
-            new_confidence = await self.calculate_confidence(claim_id, workspace_id)
+            new_confidence = await self.calculate_confidence(evidence_list)
         
         current_confidence = ks.belief_confidence if ks else 0.0
         change = new_confidence - current_confidence
         
-        # Get evidence for staleness/drift
-        evidence_list = self.db.query(Evidence).filter(
-            Evidence.claim_id == claim_id,
-            Evidence.deleted_at.is_(None)
-        ).all()
+        # Get evidence for staleness/drift (using the already fetched evidence_list)
         
         valid_evidence = [e for e in evidence_list if e.created_at is not None]
         if valid_evidence:

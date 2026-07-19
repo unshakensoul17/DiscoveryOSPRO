@@ -65,6 +65,7 @@ def run_evidence_synthesis(document_id: str, workspace_id: str):
         
         # 4. Save claims to DB
         claim_map = {}  # Map agent evidence-ids or claims
+        claims_to_add = []
         for index, raw_claim in enumerate(synthesis.claims):
             # Validate or map claim type
             try:
@@ -72,8 +73,9 @@ def run_evidence_synthesis(document_id: str, workspace_id: str):
             except ValueError:
                 c_type = ClaimType.OPERATIONAL_FACT
                 
+            claim_id = str(uuid.uuid4())
             claim_db = Claim(
-                id=str(uuid.uuid4()),
+                id=claim_id,
                 workspace_id=workspace_id,
                 content=raw_claim.content,
                 type=c_type,
@@ -83,14 +85,17 @@ def run_evidence_synthesis(document_id: str, workspace_id: str):
                 extracted_from_document=document_id,
                 user_reviewed=False
             )
-            db.add(claim_db)
-            db.flush()  # Populates claim_db.id
+            claims_to_add.append(claim_db)
             
             # Map original evidence list link to this claim_db.id
             for ev_id in raw_claim.evidence_ids:
-                claim_map[ev_id] = claim_db.id
+                claim_map[ev_id] = claim_id
+
+        if claims_to_add:
+            db.add_all(claims_to_add)
 
         # 5. Save evidence to DB
+        evidence_to_add = []
         for raw_evidence in synthesis.evidence:
             # Map polarity
             try:
@@ -132,12 +137,15 @@ def run_evidence_synthesis(document_id: str, workspace_id: str):
                     "reasoning": raw_evidence.reasoning
                 }
             )
-            db.add(evidence_db)
+            evidence_to_add.append(evidence_db)
+            
+        if evidence_to_add:
+            db.add_all(evidence_to_add)
             
         db.commit()
         
         # 6. Recalculate confidence only for newly extracted claims, then run Discovery Engine
-        new_claim_ids = [v for v in claim_map.values()]
+        new_claim_ids = [c.id for c in claims_to_add]
 
         async def process_knowledge_and_discoveries():
             ks_service = KnowledgeStateService(db)
