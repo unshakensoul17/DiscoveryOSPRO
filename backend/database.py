@@ -31,13 +31,21 @@ try:
     from models import Base
     Base.metadata.create_all(bind=engine)
     
-    # Simple migration: add owner_id column if not present
+    # Simple migrations
     from sqlalchemy import text
     with engine.begin() as conn:
         try:
             conn.execute(text("ALTER TABLE workspaces ADD COLUMN owner_id VARCHAR(36);"))
         except Exception:
-            pass  # Already exists or database handles it
+            pass  # Already exists
+        try:
+            conn.execute(text("ALTER TABLE documents ADD COLUMN processing_status VARCHAR(50) DEFAULT 'processing';"))
+        except Exception:
+            pass
+        try:
+            conn.execute(text("ALTER TABLE documents ADD COLUMN processing_progress INTEGER DEFAULT 0;"))
+        except Exception:
+            pass
 except Exception as e:
     logger.error(f"Error creating database tables: {e}")
 

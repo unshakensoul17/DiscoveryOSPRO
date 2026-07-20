@@ -124,6 +124,10 @@ async def list_documents(
         "total": len(documents)
     }
 
+from fastapi.responses import StreamingResponse
+import asyncio
+import json
+
 @router.get("/{document_id}/status")
 async def get_document_status(
     workspace_id: str,
@@ -134,7 +138,6 @@ async def get_document_status(
     """Check if claims/evidence extraction for a document is completed."""
     from models.claim import Claim
     from models.evidence import Evidence
-    from datetime import datetime, timezone
     
     claims_count = db.query(Claim).filter(Claim.extracted_from_document == document_id).count()
     evidence_count = db.query(Evidence).filter(Evidence.source_document == document_id).count()
@@ -143,8 +146,7 @@ async def get_document_status(
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
         
-    # Using real database columns for status Tracking
-    is_done = doc.processing_status == "completed" or doc.processing_status == "failed"
+    is_done = doc.processing_status in ("completed", "failed")
     
     return {
         "id": document_id,
@@ -154,3 +156,75 @@ async def get_document_status(
         "claims_count": claims_count,
         "evidence_count": evidence_count
     }
+
+@router.get("/{document_id}/stream")
+async def stream_document_status(
+    workspace_id: str,
+    document_id: str,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    """Stream real-time document processing status and progress via Server-Sent Events (SSE)."""
+    async def event_generator():
+        from database import SessionLocal
+        from models.claim import Claim
+        from models.evidence import Evidence
+
+        last_progress = -1
+        last_status = None
+        ticks = 0
+
+        while True:
+            session = SessionLocal()
+            try:
+                doc = session.query(Document).filter(
+                    Document.id == document_id,
+                    Document.workspace_id == workspace_id
+                ).first()
+
+                if not doc:
+                    err_payload = json.dumps({"error": "Document not found"})
+                    yield f"event: error\ndata: {err_payload}\n\n"
+                    break
+
+                status = doc.processing_status or "processing"
+                progress = doc.processing_progress or 0
+
+                claims_count = session.query(Claim).filter(Claim.extracted_from_document == document_id).count()
+                evidence_count = session.query(Evidence).filter(Evidence.source_document == document_id).count()
+
+                payload = json.dumps({
+                    "id": document_id,
+                    "status": status,
+                    "progress": progress,
+                    "claims_count": claims_count,
+                    "evidence_count": evidence_count,
+                    "is_done": status in ("completed", "failed")
+                })
+
+                if progress != last_progress or status != last_status:
+                    last_progress = progress
+                    last_status = status
+                    yield f"data: {payload}\n\n"
+                else:
+                    yield ": heartbeat\n\n"
+
+                if status in ("completed", "failed"):
+                    break
+            finally:
+                session.close()
+
+            ticks += 1
+            if ticks > 300:  # Timeout safety (5 mins)
+                break
+            await asyncio.sleep(1)
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )

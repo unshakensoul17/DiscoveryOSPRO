@@ -18,12 +18,12 @@ class Claim(BaseModel):
     
     workspace_id = Column(String(36), ForeignKey("workspaces.id"), nullable=False, index=True)
     content = Column(String(2000), nullable=False)
-    type = Column(Enum(ClaimType), nullable=False)
+    type = Column(Enum(ClaimType), nullable=False, index=True)
     status = Column(Enum(ClaimStatus), default=ClaimStatus.ACTIVE, index=True)
     
     extracted_by = Column(String(255), nullable=True)
     extracted_at = Column(DateTime, nullable=True)
-    extracted_from_document = Column(String(36), ForeignKey("documents.id"), nullable=True)
+    extracted_from_document = Column(String(36), ForeignKey("documents.id"), nullable=True, index=True)
     
     user_reviewed = Column(Boolean, default=False)
     
@@ -67,4 +67,5 @@ class Claim(BaseModel):
 
     __table_args__ = (
         Index("idx_claims_workspace_deleted", "workspace_id", "deleted_at"),
+        Index("idx_claims_ws_status_type", "workspace_id", "status", "type"),
     )

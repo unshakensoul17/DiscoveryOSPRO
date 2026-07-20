@@ -48,3 +48,7 @@ class KnowledgeStateHistory(BaseModel):
     
     # Relationships
     knowledge_state = relationship("KnowledgeState", back_populates="history")
+
+    __table_args__ = (
+        Index("idx_ksh_ks_timestamp", "knowledge_state_id", "timestamp"),
+    )

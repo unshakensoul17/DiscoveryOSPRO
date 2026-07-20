@@ -26,7 +26,7 @@ class Discovery(BaseModel):
     description = Column(String(1000), nullable=False)
     reasoning = Column(String(2000), nullable=True)
     
-    affected_claim_id = Column(String(36), ForeignKey("claims.id"), nullable=True)
+    affected_claim_id = Column(String(36), ForeignKey("claims.id"), nullable=True, index=True)
     status = Column(Enum(DiscoveryStatus), default=DiscoveryStatus.ACTIVE, index=True)
     
     detected_at = Column(DateTime, nullable=False)

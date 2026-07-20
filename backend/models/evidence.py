@@ -23,13 +23,13 @@ class Evidence(BaseModel):
     claim_id = Column(String(36), ForeignKey("claims.id"), nullable=False, index=True)
     
     content = Column(String(2000), nullable=False)
-    type = Column(Enum(EvidenceType), nullable=False)
+    type = Column(Enum(EvidenceType), nullable=False, index=True)
     polarity = Column(Enum(EvidencePolarity), nullable=False, index=True)
     
     reliability_score = Column(Float, default=0.5)  # 0-1
     weight = Column(Float, default=0.5)  # 0-1, configurable per workspace
     
-    source_document = Column(String(36), ForeignKey("documents.id"), nullable=True)
+    source_document = Column(String(36), ForeignKey("documents.id"), nullable=True, index=True)
     source_chunk = Column(String(36), nullable=True)
     
     is_active = Column(Boolean, default=True, index=True)
@@ -42,4 +42,5 @@ class Evidence(BaseModel):
     
     __table_args__ = (
         Index("idx_evidence_claim_polarity", "claim_id", "polarity"),
+        Index("idx_evidence_ws_claim", "workspace_id", "claim_id"),
     )

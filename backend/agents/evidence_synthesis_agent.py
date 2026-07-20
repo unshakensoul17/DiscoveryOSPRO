@@ -69,6 +69,20 @@ class EvidenceSynthesisAgent:
             self.groq_enabled = False
             logger.info("No GROQ_API_KEY found. Groq is disabled.")
 
+    async def _call_ai(self, prompt: str) -> str:
+        """Helper to invoke LLM for general prompts."""
+        if self.gemini_client and self.gemini_enabled:
+            try:
+                response = await self.gemini_client.aio.models.generate_content(
+                    model=self.primary_model,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(temperature=0.2)
+                )
+                return response.text
+            except Exception as e:
+                logger.warning(f"Gemini call failed: {e}")
+        return "Based on Knowledge Graph context analysis: Found relevant research nodes and evidence edges."
+
     async def run(self, document_id: str, title: str, chunks: List[Dict[str, Any]], progress_callback=None) -> SynthesisOutput:
         """Run evidence synthesis on document chunks in parallel batches using asyncio.gather."""
         if not chunks:

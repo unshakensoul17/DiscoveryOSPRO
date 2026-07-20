@@ -9,6 +9,7 @@ import DashboardPage from './pages/DashboardPage'
 import ClaimsPage from './pages/ClaimsPage'
 import DiscoveriesPage from './pages/DiscoveriesPage'
 import IngestionPage from './pages/IngestionPage'
+import KnowledgeGraphPage from './pages/KnowledgeGraphPage'
 import AppLayout from './components/Layout/AppLayout'
 
 const queryClient = new QueryClient()
@@ -46,6 +47,10 @@ export default function App() {
           
           <Route path="/workspaces/:workspaceId/ingest" element={
             <ProtectedRoute><AppLayout><IngestionPage /></AppLayout></ProtectedRoute>
+          } />
+
+          <Route path="/workspaces/:workspaceId/graph" element={
+            <ProtectedRoute><AppLayout><KnowledgeGraphPage /></AppLayout></ProtectedRoute>
           } />
           
           <Route path="/" element={<Navigate to="/workspaces" />} />

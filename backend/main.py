@@ -7,7 +7,7 @@ import logging
 import models
 
 from config import Settings
-from routes import claims, evidence, discoveries, auth, workspaces, documents
+from routes import claims, evidence, discoveries, auth, workspaces, documents, graph, copilot
 from middleware.error_handler import setup_error_handlers
 from middleware.logging import setup_logging
 
@@ -42,6 +42,8 @@ api_router.include_router(evidence.router)
 api_router.include_router(discoveries.router)
 api_router.include_router(workspaces.router)
 api_router.include_router(documents.router)
+api_router.include_router(graph.router)
+api_router.include_router(copilot.router)
 
 
 app.include_router(api_router)

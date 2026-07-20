@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '../api/client'
 import { useCreateClaim } from '../api/hooks'
 import { useWorkspaceStore } from '../store/workspace'
+import { useAuthStore } from '../store/auth'
 
 interface IngestedDoc {
   id: string
@@ -110,30 +111,67 @@ export default function IngestionPage() {
       await addLog(`Document dispatched to reasoning engine pipeline. ID: ${response.data.id}`, 300)
       await addLog(`Celery synthesis worker analyzing assumptions, contradictions, and evidence...`, 300)
       
-      // Poll document status until done
+      // Stream real-time document processing progress via SSE
       const docId = response.data.id
-      let isDone = false
-      let attempts = 0
-      const maxAttempts = 30 // 30 seconds limit
+      await addLog(`Connecting to real-time synthesis SSE stream...`, 200)
 
-      while (!isDone && attempts < maxAttempts) {
-        attempts++
-        await new Promise((r) => setTimeout(r, 1000))
+      const token = useAuthStore.getState().tokens?.access_token
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/v1'
+      const streamUrl = `${baseUrl}/workspaces/${workspaceId}/documents/${docId}/stream`
+
+      let isDone = false
+      try {
+        const streamResponse = await fetch(streamUrl, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+        if (streamResponse.ok && streamResponse.body) {
+          const reader = streamResponse.body.getReader()
+          const decoder = new TextDecoder()
+          let buffer = ''
+
+          while (!isDone) {
+            const { done, value } = await reader.read()
+            if (done) break
+            buffer += decoder.decode(value, { stream: true })
+            const lines = buffer.split('\n\n')
+            buffer = lines.pop() || ''
+
+            for (const line of lines) {
+              const dataMatch = line.match(/^data:\s*(.+)$/m)
+              if (dataMatch) {
+                try {
+                  const data = JSON.parse(dataMatch[1])
+                  if (data.progress !== undefined) {
+                    setProgress(Math.max(75, data.progress))
+                  }
+                  if (data.is_done) {
+                    isDone = true
+                    const cCount = data.claims_count || 0
+                    const eCount = data.evidence_count || 0
+                    await addLog(`Analysis complete: Extracted ${cCount} claims and ${eCount} evidence records.`, 100)
+                    break
+                  }
+                } catch {
+                  // ignore JSON parse error on heartbeat comments
+                }
+              }
+            }
+          }
+        }
+      } catch (streamErr) {
+        console.warn('SSE stream fallback to status check:', streamErr)
+      }
+
+      // Fallback status check if SSE stream disconnected early
+      if (!isDone) {
         try {
           const statusRes = await apiClient.get<any>(`/workspaces/${workspaceId}/documents/${docId}/status`)
           if (statusRes.data.is_done) {
-            isDone = true
             const cCount = statusRes.data.claims_count
             const eCount = statusRes.data.evidence_count
             await addLog(`Analysis complete: Extracted ${cCount} claims and ${eCount} evidence records.`, 100)
-          } else {
-            if (attempts % 4 === 0) {
-              await addLog(`Still analyzing document chunks...`, 100)
-            }
           }
-        } catch (pollErr) {
-          console.warn('Polling status failed:', pollErr)
-        }
+        } catch {}
       }
 
       setProgress(100)

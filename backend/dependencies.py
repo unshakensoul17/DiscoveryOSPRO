@@ -21,8 +21,15 @@ def get_current_user(
         
     token = credentials.credentials
     
-    # Check for demo tokens — only allowed in development mode
-    if token in ("demo-token", "mock-access-token") and settings.ENV == "development":
+    # Check for demo tokens — ONLY allowed if explicitly enabled AND in development mode
+    if token in ("demo-token", "mock-access-token"):
+        if not (getattr(settings, "ALLOW_DEMO_TOKENS", False) and settings.ENV == "development"):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Demo authentication tokens are disabled.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+            
         # Ensure demo user exists in database
         demo_id = "u-demo" if token == "demo-token" else "1"
         demo_email = "researcher@discoveryos.io" if token == "demo-token" else "user@example.com"
@@ -97,14 +104,27 @@ def verify_workspace(
     from models.workspace import Workspace
     from sqlalchemy import or_
     user_id = current_user.get("id")
+    
     ws = db.query(Workspace).filter(
         Workspace.id == workspace_id,
-        or_(Workspace.owner_id == user_id, Workspace.owner_id.is_(None)),
         Workspace.deleted_at.is_(None)
     ).first()
+
     if not ws:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Workspace not found or access forbidden."
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Workspace not found."
         )
+
+    # Claim ownership if workspace is unowned (e.g., initial seed data)
+    if ws.owner_id is None:
+        ws.owner_id = user_id
+        db.commit()
+        db.refresh(ws)
+    elif ws.owner_id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access forbidden: You do not own this workspace."
+        )
+
     return ws

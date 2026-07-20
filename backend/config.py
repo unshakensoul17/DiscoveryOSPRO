@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     # AI
     GEMINI_API_KEY: str = ""
     GROQ_API_KEY: str = ""
-    AI_PRIMARY_MODEL: str = "gemini-1.5-pro"
+    AI_PRIMARY_MODEL: str = "gemini-3.1-flash-lite"
     AI_FALLBACK_MODEL: str = "llama-3.1-70b-versatile"
     
     # AWS
@@ -47,6 +47,7 @@ class Settings(BaseSettings):
     # Environment
     ENV: str = "development"
     LOG_LEVEL: str = "INFO"
+    ALLOW_DEMO_TOKENS: bool = False
     
     # Redis
     REDIS_URL: str = "redis://localhost:6379"

@@ -32,12 +32,17 @@ def run_evidence_synthesis(document_id: str, workspace_id: str):
         file_path = doc.file_key
         if not os.path.exists(file_path):
             logger.error(f"Document file not found at {file_path}")
+            doc.processing_status = "failed"
+            db.commit()
             return {"status": "failed", "error": "File not found on disk"}
         
         processor = DocumentProcessor()
         chunks = processor.extract_and_chunk(file_path)
         if not chunks:
             logger.warning(f"No content extracted from document {document_id}")
+            doc.processing_status = "completed"
+            doc.processing_progress = 100
+            db.commit()
             return {"status": "completed", "claims_count": 0, "evidence_count": 0}
         
         # 3. Synthesize claims and evidence — combined into a single async pipeline
