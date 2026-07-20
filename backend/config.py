@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     # CORS
     CORS_ORIGINS: Union[str, List[str]] = [
         "http://localhost:3000",
+        "http://localhost:3001",
         "https://discovery-ospro.vercel.app",
     ]
 

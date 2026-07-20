@@ -3,20 +3,22 @@ import { useUIStore } from '../../store/ui'
 export default function ClaimsFilter() {
   const { claimsFilters, setClaimsFilters } = useUIStore()
 
+  const selectClass = "w-full glass-strong rounded-xl px-3 py-2.5 text-xs text-foreground focus:outline-none focus:border-[rgba(255,26,26,0.5)] transition-colors cursor-pointer appearance-none [&>option]:bg-zinc-900 [&>option]:text-white"
+
   return (
     <div className="space-y-5">
-      <div>
-        <h3 className="text-xs font-mono font-bold text-slate-400 uppercase tracking-widest mb-4">Filter Hypotheses</h3>
-      </div>
+      <h3 className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-widest">
+        Filter Hypotheses
+      </h3>
       
-      <div className="flex flex-col">
-        <label className="text-[10px] font-mono font-semibold text-slate-500 uppercase tracking-wider mb-2">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-wider">
           Status
         </label>
         <select
           value={claimsFilters.status || ''}
           onChange={(e) => setClaimsFilters({ status: (e.target.value || null) as any })}
-          className="bg-[#F1F5F9] border border-[#CBD5E1] hover:border-slate-300 text-slate-800 text-xs rounded-lg px-3 py-2.5 focus:outline-none focus:border-blue-500/80 transition-colors cursor-pointer"
+          className={selectClass}
         >
           <option value="active">Active Hypotheses</option>
           <option value="archived">Archived Hypotheses</option>
@@ -24,14 +26,14 @@ export default function ClaimsFilter() {
         </select>
       </div>
 
-      <div className="flex flex-col">
-        <label className="text-[10px] font-mono font-semibold text-slate-500 uppercase tracking-wider mb-2">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-wider">
           Hypothesis Type
         </label>
         <select
           value={claimsFilters.type || ''}
           onChange={(e) => setClaimsFilters({ type: e.target.value || null })}
-          className="bg-[#F1F5F9] border border-[#CBD5E1] hover:border-slate-300 text-slate-800 text-xs rounded-lg px-3 py-2.5 focus:outline-none focus:border-blue-500/80 transition-colors cursor-pointer"
+          className={selectClass}
         >
           <option value="">All Types</option>
           <option value="strategic_belief">Strategic Hypothesis</option>
@@ -41,14 +43,14 @@ export default function ClaimsFilter() {
         </select>
       </div>
 
-      <div className="flex flex-col">
-        <label className="text-[10px] font-mono font-semibold text-slate-500 uppercase tracking-wider mb-2">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-wider">
           Insight Age
         </label>
         <select
           value={claimsFilters.staleness || ''}
           onChange={(e) => setClaimsFilters({ staleness: (e.target.value || null) as any })}
-          className="bg-[#F1F5F9] border border-[#CBD5E1] hover:border-slate-300 text-slate-800 text-xs rounded-lg px-3 py-2.5 focus:outline-none focus:border-blue-500/80 transition-colors cursor-pointer"
+          className={selectClass}
         >
           <option value="">All Ages</option>
           <option value="fresh">Fresh (&lt; 5d)</option>

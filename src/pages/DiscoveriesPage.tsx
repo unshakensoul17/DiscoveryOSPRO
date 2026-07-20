@@ -14,17 +14,17 @@ export default function DiscoveriesPage() {
   return (
     <div className="flex h-[calc(100vh-80px)] -m-6 overflow-hidden">
       {/* List */}
-      <div className="w-80 border-r border-[#E2E8F0] overflow-y-auto p-6 flex-shrink-0 bg-[#FFFFFF]/10">
+      <div className="w-80 border-r border-white/10 overflow-y-auto p-6 flex-shrink-0 bg-[var(--background)] custom-scrollbar">
         <div className="mb-6">
-          <h1 className="text-base font-bold text-slate-900 tracking-tight">Validation Insights</h1>
-          <p className="text-[10px] text-slate-500 font-mono uppercase mt-0.5">Contradictions & Risks</p>
+          <h1 className="text-lg font-bold text-foreground tracking-tight">Validation Insights</h1>
+          <p className="text-[10px] text-muted-foreground font-mono uppercase mt-1 tracking-wider">Contradictions & Risks</p>
         </div>
         
         <div className="space-y-4">
           {discoveriesQuery.isLoading ? (
             <div className="space-y-4">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-32 bg-[#FFFFFF] border border-[#E2E8F0] rounded-xl animate-pulse" />
+                <div key={i} className="h-32 glass-strong rounded-xl animate-pulse" />
               ))}
             </div>
           ) : (
@@ -40,14 +40,14 @@ export default function DiscoveriesPage() {
       </div>
       
       {/* Detail */}
-      <div className="flex-1 overflow-y-auto p-6 bg-[#F9F9FB]">
+      <div className="flex-1 overflow-y-auto p-6 bg-[var(--background)] custom-scrollbar">
         {selectedDiscoveryId ? (
           <DiscoveryDetail discoveryId={selectedDiscoveryId} />
         ) : (
-          <div className="h-full flex flex-col justify-center items-center text-center p-6 border border-dashed border-[#E2E8F0] rounded-xl bg-slate-50">
-            <span className="text-2xl mb-2 text-slate-500">🛡️</span>
-            <h3 className="text-sm font-semibold text-slate-600">No Insight Selected</h3>
-            <p className="text-slate-500 text-xs font-light mt-1 max-w-[200px]">
+          <div className="h-full flex flex-col justify-center items-center text-center p-6 border-2 border-dashed border-white/10 rounded-2xl glass-strong">
+            <span className="text-3xl mb-3 text-muted-foreground">🛡️</span>
+            <h3 className="text-sm font-semibold text-foreground">No Insight Selected</h3>
+            <p className="text-muted-foreground text-xs font-light mt-2 max-w-[200px]">
               Select a risk or contradiction from the list to audit its source.
             </p>
           </div>

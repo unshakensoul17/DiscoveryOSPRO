@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useUIStore } from '../../store/ui'
 import { useCreateClaim } from '../../api/hooks'
+import { X, Plus } from 'lucide-react'
 
 export default function CreateClaimModal() {
   const { workspaceId } = useParams<{ workspaceId: string }>()
@@ -17,63 +18,62 @@ export default function CreateClaimModal() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      await createClaimMutation.mutateAsync({
-        content,
-        type,
-        confidence,
-      })
+      await createClaimMutation.mutateAsync({ content, type, confidence })
       setContent('')
       closeCreateClaimModal()
     } catch (err) {
       console.warn('API save failed, using local offline bypass:', err)
-      // Offline fallback: close the modal directly
       closeCreateClaimModal()
     }
   }
 
+  const inputClass = "w-full glass-strong rounded-xl px-3 py-2.5 text-sm text-foreground placeholder-[var(--muted-foreground)] focus:outline-none focus:border-[rgba(255,26,26,0.5)] transition-colors resize-none"
+
   return (
-    <div className="fixed inset-0 bg-[#F9F9FB]/85 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
-      <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl p-6 w-full max-w-md shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50">
+      <div className="glass rounded-2xl p-6 w-full max-w-md relative shadow-2xl border border-white/10">
         
-        {/* Close Button */}
-        <button
-          onClick={closeCreateClaimModal}
-          className="absolute top-4 right-4 text-slate-500 hover:text-slate-700 transition-colors p-1"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        {/* Glow orb */}
+        <div className="pointer-events-none absolute -top-12 -right-12 h-40 w-40 rounded-full bg-[radial-gradient(circle,rgba(255,26,26,0.2),transparent_60%)] blur-2xl" />
 
-        <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
-          <span>➕</span> Add Strategic Claim
-        </h3>
-        <p className="text-xs text-slate-400 mb-6 font-light leading-relaxed">
-          Create a claim to monitor. The Discovery engine will evaluate incoming documents to calculate belief certitude.
-        </p>
-
-        <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-5">
           <div>
-            <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2 font-mono">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(255,26,26,0.35)] bg-[rgba(255,26,26,0.08)] px-2.5 py-1 text-[10px] font-medium text-[var(--primary)] mb-2">
+              <Plus className="h-3 w-3" /> New Hypothesis
+            </div>
+            <h3 className="text-lg font-bold">Add Strategic Claim</h3>
+            <p className="text-xs text-muted-foreground mt-1 font-light leading-relaxed">
+              Create a claim to monitor. The Discovery engine will evaluate incoming documents to calculate belief certitude.
+            </p>
+          </div>
+          <button onClick={closeCreateClaimModal} className="text-muted-foreground hover:text-foreground transition-colors p-1 ml-4">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 font-mono">
               Statement Content
             </label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="w-full bg-[#F1F5F9] border border-[#CBD5E1] text-slate-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500/80 h-24 resize-none placeholder-slate-600 transition-colors"
+              className={`${inputClass} h-24`}
               placeholder="e.g. Market expansion targets are achievable with current resources..."
               required
             />
           </div>
 
           <div>
-            <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2 font-mono">
+            <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 font-mono">
               Claim Type
             </label>
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="w-full bg-[#F1F5F9] border border-[#CBD5E1] text-slate-900 rounded-lg px-3 py-2.5 text-xs focus:outline-none focus:border-blue-500/80 transition-colors cursor-pointer"
+              className={inputClass}
             >
               <option value="strategic_belief">Strategic Belief</option>
               <option value="metric">Metric</option>
@@ -84,34 +84,32 @@ export default function CreateClaimModal() {
 
           <div>
             <div className="flex justify-between items-center mb-2 font-mono text-[10px]">
-              <span className="font-semibold text-slate-500 uppercase tracking-wider">
+              <span className="font-semibold text-muted-foreground uppercase tracking-wider">
                 Prior Confidence
               </span>
-              <span className="text-blue-400 font-semibold">{Math.round(confidence * 100)}%</span>
+              <span className="text-[var(--primary)] font-semibold">{Math.round(confidence * 100)}%</span>
             </div>
             <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
+              type="range" min="0" max="1" step="0.05"
               value={confidence}
               onChange={(e) => setConfidence(parseFloat(e.target.value))}
-              className="w-full h-1 bg-[#F1F5F9] rounded-lg appearance-none cursor-pointer accent-blue-500 border border-[#CBD5E1]"
+              className="w-full h-1 rounded-lg appearance-none cursor-pointer accent-red-500"
+              style={{ background: `linear-gradient(to right, var(--primary) ${confidence * 100}%, rgba(255,255,255,0.1) ${confidence * 100}%)` }}
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-[#E2E8F0]">
+          <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
             <button
               type="button"
               onClick={closeCreateClaimModal}
-              className="px-4 py-2 bg-slate-100 border border-[#E2E8F0] hover:border-slate-300 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition-colors"
+              className="px-4 py-2 glass-strong hover:bg-white/10 text-foreground font-semibold rounded-xl text-xs transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={createClaimMutation.isPending}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 text-white font-semibold rounded-lg text-xs transition-colors shadow-md shadow-blue-600/10"
+              className="px-4 py-2 bg-[var(--gradient-red)] disabled:opacity-50 text-white font-semibold rounded-xl text-xs transition-transform red-glow hover:scale-[1.02]"
             >
               {createClaimMutation.isPending ? 'Saving...' : 'Save Claim'}
             </button>

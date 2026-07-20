@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from './client'
-import { Claim, Evidence, Discovery, ApiResponse } from '../types'
+import { Claim, Evidence, Discovery, ApiResponse, ClaimDetail } from '../types'
 
 // Claims queries
 export function useClaimsQuery(workspaceId: string, filters?: any) {
@@ -22,7 +22,7 @@ export function useClaimDetail(workspaceId: string, claimId: string) {
   return useQuery({
     queryKey: ['claim', workspaceId, claimId],
     queryFn: async () => {
-      const { data } = await apiClient.get(`/workspaces/${workspaceId}/claims/${claimId}`)
+      const { data } = await apiClient.get<ClaimDetail>(`/workspaces/${workspaceId}/claims/${claimId}`)
       return data
     },
     enabled: !!claimId && !!workspaceId,

@@ -49,34 +49,35 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F9F9FB] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Refined Glowing Backdrops */}
-      <div className="absolute top-[-25%] left-[-10%] w-[60%] h-[60%] bg-blue-900/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-[-25%] right-[-10%] w-[60%] h-[60%] bg-indigo-900/10 rounded-full blur-[140px] pointer-events-none" />
+    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Glow orbs */}
+      <div className="absolute -top-48 -left-24 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(255,26,26,0.18),transparent_60%)] blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-48 -right-24 w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(120,0,0,0.28),transparent_60%)] blur-3xl pointer-events-none" />
 
-      <div className="w-full max-w-md bg-[#FFFFFF]/80 backdrop-blur-xl border border-[#E2E8F0] rounded-2xl shadow-2xl p-8 z-10">
+      <div className="w-full max-w-md glass rounded-2xl p-8 z-10">
         <div className="text-center mb-8">
-          <div className="inline-block px-3 py-1 bg-blue-50 border border-blue-500/20 text-blue-400 text-xs font-mono rounded-full mb-3 uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(255,26,26,0.35)] bg-[rgba(255,26,26,0.08)] px-3 py-1 text-xs font-medium text-[var(--primary)] mb-4">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--primary)]" />
             Scientific Logic Engine
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
-            Discovery<span className="text-blue-400">OS</span>
+          <h1 className="text-3xl font-extrabold tracking-tight">
+            Discovery<span className="bg-[var(--gradient-red)] bg-clip-text text-transparent text-glow">OS</span>
           </h1>
-          <p className="text-slate-400 text-sm mt-2 font-light">
+          <p className="text-muted-foreground text-sm mt-2 font-light">
             Know what you know. Expose what you're missing.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 font-mono">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 font-mono">
               Email Address
             </label>
             <input
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-2.5 bg-[#F1F5F9] border border-[#CBD5E1] rounded-lg text-slate-900 placeholder-slate-500 focus:outline-none focus:border-blue-500/80 transition-colors text-sm"
+              className="w-full px-4 py-2.5 glass-strong rounded-xl text-foreground placeholder-[var(--muted-foreground)] focus:outline-none focus:border-[rgba(255,26,26,0.5)] transition-colors text-sm"
               required
               disabled={isLoading}
               placeholder="you@example.com"
@@ -84,14 +85,14 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5 font-mono">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 font-mono">
               Password
             </label>
             <input
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="w-full px-4 py-2.5 bg-[#F1F5F9] border border-[#CBD5E1] rounded-lg text-slate-900 placeholder-slate-500 focus:outline-none focus:border-blue-500/80 transition-colors text-sm"
+              className="w-full px-4 py-2.5 glass-strong rounded-xl text-foreground placeholder-[var(--muted-foreground)] focus:outline-none focus:border-[rgba(255,26,26,0.5)] transition-colors text-sm"
               required
               disabled={isLoading}
               placeholder="••••••••"
@@ -99,7 +100,7 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div className="p-3 bg-red-950/40 border border-red-900/60 text-red-400 text-xs rounded-lg font-light leading-relaxed">
+            <div className="p-3 bg-[rgba(255,26,26,0.1)] border border-[rgba(255,26,26,0.35)] text-[var(--primary)] text-xs rounded-xl font-light leading-relaxed">
               {error}
             </div>
           )}
@@ -108,7 +109,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 text-white font-semibold rounded-lg text-sm transition-all shadow-lg shadow-blue-600/10 hover:shadow-blue-600/20 active:scale-[0.98]"
+              className="w-full py-2.5 px-4 bg-[var(--gradient-red)] disabled:opacity-50 text-white font-semibold rounded-xl text-sm transition-transform red-glow hover:scale-[1.01] active:scale-[0.98]"
             >
               {isLoading ? 'Decrypting...' : 'Log in'}
             </button>
@@ -116,9 +117,9 @@ export default function LoginPage() {
         </form>
 
         <div className="relative flex py-4 items-center">
-          <div className="flex-grow border-t border-[#E2E8F0]"></div>
-          <span className="flex-shrink mx-4 text-slate-500 text-xs font-mono uppercase tracking-wider">or</span>
-          <div className="flex-grow border-t border-[#E2E8F0]"></div>
+          <div className="flex-grow border-t border-white/10"></div>
+          <span className="flex-shrink mx-4 text-muted-foreground text-xs font-mono uppercase tracking-wider">or</span>
+          <div className="flex-grow border-t border-white/10"></div>
         </div>
 
         <div>
@@ -126,16 +127,16 @@ export default function LoginPage() {
             type="button"
             onClick={handleDemoMode}
             disabled={isLoading}
-            className="w-full py-2.5 px-4 bg-slate-100 border border-[#E2E8F0] hover:border-slate-300 hover:bg-slate-200 text-slate-800 font-semibold rounded-lg text-sm transition-all active:scale-[0.98]"
+            className="w-full py-2.5 px-4 glass-strong hover:bg-white/10 text-foreground font-semibold rounded-xl text-sm transition-all active:scale-[0.98]"
           >
             Launch Demo Workspace
           </button>
         </div>
 
-        <div className="mt-8 text-center border-t border-[#E2E8F0]/60 pt-6">
-          <p className="text-slate-500 text-xs font-light">
+        <div className="mt-8 text-center border-t border-white/10 pt-6">
+          <p className="text-muted-foreground text-xs font-light">
             Targeting production deployment?{' '}
-            <span className="text-blue-400 hover:underline font-medium cursor-pointer">
+            <span className="text-[var(--primary)] hover:underline font-medium cursor-pointer">
               Register Credentials
             </span>
           </p>

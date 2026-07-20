@@ -17,7 +17,7 @@ export default function ClaimsList({ claims, isLoading, onSelectClaim }: ClaimsL
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
-            className="h-28 bg-[#FFFFFF] border border-[#E2E8F0] rounded-xl animate-pulse"
+            className="h-28 glass-strong rounded-xl animate-pulse"
           />
         ))}
       </div>
@@ -26,9 +26,9 @@ export default function ClaimsList({ claims, isLoading, onSelectClaim }: ClaimsL
   
   if (!claims.length) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 border border-dashed border-[#E2E8F0] rounded-xl bg-slate-50">
-        <span className="text-xl mb-2 text-slate-500">🔍</span>
-        <p className="text-slate-500 text-xs font-light">No hypotheses match filters</p>
+      <div className="flex flex-col items-center justify-center h-64 border border-dashed border-white/10 rounded-xl">
+        <span className="text-xl mb-2 text-muted-foreground">🔍</span>
+        <p className="text-muted-foreground text-xs font-light">No hypotheses match filters</p>
       </div>
     )
   }
