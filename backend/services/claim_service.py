@@ -42,14 +42,20 @@ class ClaimService:
         workspace_id: str,
         status: Optional[str] = None,
         claim_type: Optional[str] = None,
+        staleness: Optional[str] = None,
+        search: Optional[str] = None,
         confidence_min: float = 0.0,
         confidence_max: float = 1.0,
         limit: int = 50,
         offset: int = 0
     ) -> tuple[List[Claim], int]:
-        """List claims with filtering and pagination."""
+        """List claims with status, type, staleness, search, confidence filtering and pagination."""
         from sqlalchemy.orm import joinedload
-        query = self.db.query(Claim).options(
+        from models.knowledge_state import KnowledgeState
+
+        query = self.db.query(Claim).outerjoin(
+            KnowledgeState, Claim.id == KnowledgeState.claim_id
+        ).options(
             joinedload(Claim.knowledge_state),
             joinedload(Claim.evidence)
         ).filter(
@@ -63,10 +69,36 @@ class ClaimService:
             query = query.filter(Claim.status == status)
         if claim_type:
             query = query.filter(Claim.type == claim_type)
+        if search:
+            query = query.filter(Claim.content.ilike(f"%{search}%"))
+
+        if confidence_min > 0.0 or confidence_max < 1.0:
+            query = query.filter(
+                or_(
+                    and_(
+                        KnowledgeState.belief_confidence >= confidence_min,
+                        KnowledgeState.belief_confidence <= confidence_max
+                    ),
+                    KnowledgeState.belief_confidence.is_(None)
+                )
+            )
+
+        if staleness:
+            if staleness == "fresh":
+                query = query.filter(KnowledgeState.staleness_score <= 0.3)
+            elif staleness == "aging":
+                query = query.filter(
+                    and_(
+                        KnowledgeState.staleness_score > 0.3,
+                        KnowledgeState.staleness_score <= 0.7
+                    )
+                )
+            elif staleness == "stale":
+                query = query.filter(KnowledgeState.staleness_score > 0.7)
         
         total = query.count()
         
-        claims = query.limit(limit).offset(offset).all()
+        claims = query.order_by(Claim.created_at.desc()).limit(limit).offset(offset).all()
         return claims, total
     
     async def update_claim(

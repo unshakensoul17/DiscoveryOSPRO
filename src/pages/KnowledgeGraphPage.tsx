@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import React, { useState, useEffect, useRef } from 'react'
+import { useParams, useLocation } from 'react-router-dom'
 import { apiClient } from '../api/client'
 
 interface GraphNode {
@@ -35,6 +35,7 @@ interface ChatMessage {
 
 export default function KnowledgeGraphPage() {
   const { workspaceId } = useParams<{ workspaceId: string }>()
+  const location = useLocation()
 
   const [nodes, setNodes] = useState<GraphNode[]>([])
   const [edges, setEdges] = useState<GraphEdge[]>([])
@@ -51,12 +52,20 @@ export default function KnowledgeGraphPage() {
   ])
   const [queryInput, setQueryInput] = useState('')
   const [isAsking, setIsAsking] = useState(false)
+  const initialQueryProcessed = useRef(false)
 
   useEffect(() => {
     if (workspaceId) {
       fetchGraphData(workspaceId)
     }
   }, [workspaceId])
+
+  useEffect(() => {
+    if (location.state?.initialQuery && workspaceId && !initialQueryProcessed.current) {
+      initialQueryProcessed.current = true
+      submitQuery(location.state.initialQuery)
+    }
+  }, [location.state, workspaceId])
 
   const fetchGraphData = async (wsId: string) => {
     setLoading(true)
@@ -74,11 +83,9 @@ export default function KnowledgeGraphPage() {
     }
   }
 
-  const handleAskCopilot = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!queryInput.trim() || !workspaceId || isAsking) return
+  const submitQuery = async (userQ: string) => {
+    if (!userQ.trim() || !workspaceId || isAsking) return
 
-    const userQ = queryInput.trim()
     setQueryInput('')
     setChatMessages((prev) => [...prev, { sender: 'user', text: userQ }])
     setIsAsking(true)
@@ -107,6 +114,11 @@ export default function KnowledgeGraphPage() {
     } finally {
       setIsAsking(false)
     }
+  }
+
+  const handleAskCopilot = async (e: React.FormEvent) => {
+    e.preventDefault()
+    await submitQuery(queryInput)
   }
 
   return (

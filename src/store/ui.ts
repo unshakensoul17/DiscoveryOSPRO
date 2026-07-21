@@ -5,6 +5,7 @@ export interface ClaimsFilter {
   type?: string | null
   confidenceRange?: [number, number]
   staleness?: 'fresh' | 'aging' | 'stale' | null
+  search?: string | null
 }
 
 interface UIStore {
@@ -36,6 +37,7 @@ interface UIStore {
   setSelectedDiscoveryId: (id: string | null) => void
   setSelectedResearchId: (id: string | null) => void
   setClaimsFilters: (filters: Partial<ClaimsFilter>) => void
+  resetClaimsFilters: () => void
   openCreateClaimModal: () => void
   closeCreateClaimModal: () => void
 }
@@ -64,6 +66,10 @@ export const useUIStore = create<UIStore>((set) => ({
     set((state) => ({
       claimsFilters: { ...state.claimsFilters, ...filters },
     })),
+  resetClaimsFilters: () =>
+    set({
+      claimsFilters: { status: null, type: null, staleness: null, search: null, confidenceRange: [0, 1] },
+    }),
   openCreateClaimModal: () => set({ createClaimModalOpen: true }),
   closeCreateClaimModal: () => set({ createClaimModalOpen: false }),
 }))

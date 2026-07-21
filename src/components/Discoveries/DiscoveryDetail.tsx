@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useDiscoveriesQuery, useDismissDiscovery } from '../../api/hooks'
 import { useUIStore } from '../../store/ui'
@@ -47,7 +46,6 @@ export default function DiscoveryDetail({ discoveryId }: DiscoveryDetailProps) {
   const { workspaceId } = useParams<{ workspaceId: string }>()
   const navigate = useNavigate()
   const dismissMutation = useDismissDiscovery(workspaceId || '')
-  const [campaignActive, setCampaignActive] = useState(false)
 
   // For details, we can find it in the discoveries query cache
   const { data: discoveries = [] } = useDiscoveriesQuery(workspaceId || '')
@@ -150,24 +148,20 @@ export default function DiscoveryDetail({ discoveryId }: DiscoveryDetailProps) {
           </div>
         )}
 
-        {/* Active/Recommended Campaign Section */}
-        <div className={`p-5 rounded-xl border transition-all ${
-          campaignActive
-            ? 'bg-blue-50/50 border-blue-300 shadow-inner'
-            : 'bg-slate-50/50 border-slate-200 hover:border-slate-300'
-        }`}>
+        {/* Recommended Campaign Section */}
+        <div className="p-5 rounded-xl border bg-slate-50/50 border-slate-200 hover:border-slate-300 transition-all">
           <div className="flex justify-between items-center pb-3 border-b border-[#E2E8F0] mb-4">
             <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${campaignActive ? 'bg-blue-500 animate-ping' : 'bg-slate-400'}`} />
-              <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${campaignActive ? 'text-blue-600' : 'text-slate-500'}`}>
-                {campaignActive ? 'Active Validation Campaign' : 'Recommended Campaign Protocol'}
+              <span className="w-2 h-2 rounded-full bg-slate-400" />
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500">
+                Recommended Campaign Protocol
               </span>
             </div>
             <div className="flex gap-2 text-[9px] font-mono">
-              <span className={`px-2 py-0.5 rounded font-bold uppercase ${campaignActive ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-600'}`}>
+              <span className="px-2 py-0.5 rounded font-bold uppercase bg-slate-100 text-slate-600">
                 Effort: {effortConfig.effort}
               </span>
-              <span className={`px-2 py-0.5 rounded font-bold ${campaignActive ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-100 text-slate-600'}`}>
+              <span className="px-2 py-0.5 rounded font-bold bg-slate-100 text-slate-600">
                 {effortConfig.hours}h Est
               </span>
             </div>
@@ -183,20 +177,6 @@ export default function DiscoveryDetail({ discoveryId }: DiscoveryDetailProps) {
               <p className="text-slate-600 font-light">{evidenceText}</p>
             </div>
           </div>
-
-          {campaignActive && (
-            <div className="mt-4 pt-3 border-t border-blue-200/60 flex items-center justify-between">
-              <span className="text-[10px] text-blue-600 font-mono">
-                🚀 Upload fresh data in the Ingestion pipeline to resolve.
-              </span>
-              <button
-                onClick={() => navigate(`/workspaces/${workspaceId}/ingest`)}
-                className="px-3 py-1 bg-blue-600 hover:bg-blue-750 text-white font-semibold rounded text-[10px] transition-colors"
-              >
-                Go to Upload 📥
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Actions */}
@@ -214,21 +194,18 @@ export default function DiscoveryDetail({ discoveryId }: DiscoveryDetailProps) {
           >
             {dismissMutation.isPending ? 'Dismissing...' : 'Ignore Risk'}
           </button>
-          {!campaignActive ? (
-            <button
-              onClick={() => setCampaignActive(true)}
-              className="flex-grow py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-xs transition-all shadow-md shadow-blue-600/10"
-            >
-              Start Research Campaign
-            </button>
-          ) : (
-            <button
-              onClick={() => setCampaignActive(false)}
-              className="flex-grow py-2.5 px-4 bg-slate-200 border border-slate-300 text-slate-700 font-semibold rounded-lg text-xs transition-all"
-            >
-              Pause Campaign
-            </button>
-          )}
+          <button
+            onClick={() => {
+              const query = displayDiscovery.metadata?.claim_1 && displayDiscovery.metadata?.claim_2
+                ? `Investigate this contradiction: Hypothesis A ("${displayDiscovery.metadata.claim_1}") vs Hypothesis B ("${displayDiscovery.metadata.claim_2}")`
+                : `Investigate this risk: ${displayDiscovery.description}`
+              
+              navigate(`/workspaces/${workspaceId}/graph`, { state: { initialQuery: query } })
+            }}
+            className="flex-grow py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-xs transition-all shadow-md shadow-blue-600/10"
+          >
+            Ask Copilot to Investigate
+          </button>
         </div>
       </div>
     </div>

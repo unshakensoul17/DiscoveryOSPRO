@@ -25,14 +25,14 @@ export default function ClaimsPage() {
         <div className="w-80 border-r border-[#E2E8F0] overflow-y-auto p-6 flex-shrink-0">
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <h2 className="text-base font-bold text-slate-900 tracking-tight">Hypothesis Explorer</h2>
-              <p className="text-[10px] text-slate-500 font-mono uppercase mt-0.5">Pain Points & Insights Catalog</p>
+              <h2 className="text-base font-bold text-slate-900 tracking-tight">Research Findings</h2>
+              <p className="text-[10px] text-slate-500 font-mono uppercase mt-0.5">All Customer Feedback & Claims</p>
             </div>
             <button
               onClick={openCreateClaimModal}
               className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-md shadow-blue-600/10 transition-colors"
             >
-              ＋ Add Hypothesis
+              ＋ Add Finding
             </button>
           </div>
           

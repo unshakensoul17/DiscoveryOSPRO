@@ -7,9 +7,22 @@ export function useClaimsQuery(workspaceId: string, filters?: any) {
   return useQuery({
     queryKey: ['claims', workspaceId, filters],
     queryFn: async () => {
+      const params: Record<string, any> = { limit: 50, offset: 0 }
+      if (filters?.status) params.status = filters.status
+      if (filters?.type) params.type = filters.type
+      if (filters?.staleness) params.staleness = filters.staleness
+      if (filters?.search) params.search = filters.search
+      if (filters?.confidence_min !== undefined && filters?.confidence_min !== null) {
+        params.confidence_min = filters.confidence_min
+      }
+      if (filters?.confidenceRange && Array.isArray(filters.confidenceRange)) {
+        params.confidence_min = filters.confidenceRange[0]
+        params.confidence_max = filters.confidenceRange[1]
+      }
+
       const { data } = await apiClient.get<ApiResponse<Claim[]>>(
         `/workspaces/${workspaceId}/claims`,
-        { params: { ...filters, limit: 50, offset: 0 } }
+        { params }
       )
       return data.data
     },

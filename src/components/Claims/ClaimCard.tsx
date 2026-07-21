@@ -23,19 +23,20 @@ export default function ClaimCard({ claim, onSelect, isSelected }: ClaimCardProp
       
       {/* Type badge */}
       <div className="mt-4 flex items-center justify-between">
-        <span className="inline-block px-2 py-0.5 border border-[#E2E8F0] text-slate-400 text-[9px] font-mono rounded bg-slate-950/40 uppercase tracking-wider">
-          {claim.type === 'strategic_belief' ? 'Strategic Hypothesis' :
-           claim.type === 'operational_fact' ? 'Empirical Metric' :
-           claim.type === 'assumption' ? 'Base Assumption' :
-           claim.type.replace(/_/g, ' ')}
+        <span className="inline-block px-2 py-0.5 border border-[#CBD5E1] text-slate-600 text-[10px] font-medium rounded bg-slate-100 uppercase tracking-wider">
+          {claim.type === 'strategic_belief' ? 'Strategic Idea' :
+           claim.type === 'metric' ? 'Metric Stat' :
+           claim.type === 'assumption' ? 'Untested Assumption' :
+           claim.type === 'operational_fact' ? 'Known Fact' :
+           String(claim.type).replace(/_/g, ' ')}
         </span>
         
         {/* Confidence score */}
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-mono font-bold text-slate-600">
-            {Math.round(claim.confidence * 100)}%
+          <span className="text-[10px] font-mono font-bold text-slate-700">
+            {Math.round(claim.confidence * 100)}% Confidence
           </span>
-          <div className="w-12 h-1 bg-slate-100 border border-[#E2E8F0] rounded-full overflow-hidden">
+          <div className="w-12 h-1.5 bg-slate-100 border border-[#CBD5E1] rounded-full overflow-hidden">
             <div
               className={`h-full transition-all ${
                 claim.confidence > 0.7 ? 'bg-emerald-500' : claim.confidence > 0.4 ? 'bg-amber-500' : 'bg-red-500'
@@ -47,13 +48,13 @@ export default function ClaimCard({ claim, onSelect, isSelected }: ClaimCardProp
       </div>
       
       {/* Evidence count & Date */}
-      <div className="mt-3.5 pt-3 border-t border-[#E2E8F0]/60 flex items-center justify-between text-[9px] font-mono text-slate-500">
+      <div className="mt-3.5 pt-3 border-t border-[#E2E8F0]/60 flex items-center justify-between text-[10px] font-mono text-slate-500">
         <div className="flex items-center gap-3">
-          <span className="text-emerald-400/90">
-            ✓ {claim.evidence_count?.supporting || 0}
+          <span className="text-emerald-600 font-semibold">
+            ✓ {claim.evidence_count?.supporting || 0} Pro
           </span>
-          <span className="text-red-400/90">
-            ✗ {claim.evidence_count?.contradicting || 0}
+          <span className="text-red-600 font-semibold">
+            ✗ {claim.evidence_count?.contradicting || 0} Con
           </span>
         </div>
         <span>

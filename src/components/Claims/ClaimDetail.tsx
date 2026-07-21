@@ -70,9 +70,10 @@ export default function ClaimDetail({ claimId }: ClaimDetailProps) {
 
   // Render mapped name for badges
   const claimTypeDisplay =
-    displayClaim.type === 'strategic_belief' ? 'Strategic Hypothesis' :
-    displayClaim.type === 'operational_fact' ? 'Empirical Metric' :
-    displayClaim.type === 'assumption' ? 'Base Assumption' :
+    displayClaim.type === 'strategic_belief' ? 'Strategic Idea' :
+    displayClaim.type === 'metric' ? 'Metric Stat & Data' :
+    displayClaim.type === 'assumption' ? 'Untested Assumption' :
+    displayClaim.type === 'operational_fact' ? 'Known Fact' :
     displayClaim.type.replace(/_/g, ' ')
 
   return (
@@ -80,11 +81,11 @@ export default function ClaimDetail({ claimId }: ClaimDetailProps) {
       {/* Header */}
       <div className="px-6 py-4 border-b border-[#E2E8F0] flex items-center justify-between">
         <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-widest">
-          Hypothesis Detail & Evidence Audit
+          Finding Details & Evidence
         </span>
         <button
           onClick={() => setSelectedClaimId(null)}
-          className="text-slate-500 hover:text-slate-600 text-xs font-mono flex items-center gap-1.5 transition-colors focus:outline-none"
+          className="text-slate-500 hover:text-slate-600 text-xs font-mono flex items-center gap-1.5 transition-colors focus:outline-none cursor-pointer"
         >
           <span>✕</span> CLOSE
         </button>
@@ -93,7 +94,7 @@ export default function ClaimDetail({ claimId }: ClaimDetailProps) {
       {/* Content scroll area */}
       <div className="p-6 flex-1 overflow-y-auto space-y-6">
         <div>
-          <span className="inline-block px-2 py-0.5 border border-[#E2E8F0] text-slate-400 text-[9px] font-mono rounded bg-slate-950/40 uppercase tracking-wider mb-3">
+          <span className="inline-block px-2.5 py-1 border border-[#CBD5E1] text-slate-700 text-[10px] font-semibold rounded bg-slate-100 uppercase tracking-wider mb-3">
             {claimTypeDisplay}
           </span>
           <p className="text-sm text-slate-900 font-semibold leading-relaxed">
@@ -105,15 +106,15 @@ export default function ClaimDetail({ claimId }: ClaimDetailProps) {
         <div className="grid grid-cols-2 gap-6 border-y border-[#E2E8F0]/60 py-5 font-mono text-xs">
           <div>
             <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-2">
-              Validation Certitude
+              Confidence Score
             </span>
             <div className="flex items-center gap-3">
-              <span className="text-xl font-extrabold text-blue-400 font-mono">
+              <span className="text-xl font-extrabold text-blue-600 font-mono">
                 {Math.round(displayClaim.confidence * 100)}%
               </span>
-              <div className="flex-1 bg-[#F1F5F9] border border-[#CBD5E1] h-1.5 rounded-full overflow-hidden">
+              <div className="flex-1 bg-[#F1F5F9] border border-[#CBD5E1] h-2 rounded-full overflow-hidden">
                 <div
-                  className="bg-blue-500 h-full rounded-full transition-all duration-500"
+                  className="bg-blue-600 h-full rounded-full transition-all duration-500"
                   style={{ width: `${displayClaim.confidence * 100}%` }}
                 />
               </div>
@@ -122,17 +123,17 @@ export default function ClaimDetail({ claimId }: ClaimDetailProps) {
 
           <div>
             <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-2">
-              Staleness Score
+              Data Age Rating
             </span>
             <div className="flex items-center gap-2">
               <span className={`text-xs font-semibold px-2 py-0.5 rounded border ${
                 displayClaim.staleness_score > 0.5
-                  ? 'bg-amber-950/30 text-amber-400 border-amber-900/60'
-                  : 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                  ? 'bg-amber-100 text-amber-800 border-amber-300'
+                  : 'bg-emerald-50 text-emerald-700 border-emerald-300'
               }`}>
-                {displayClaim.staleness_score > 0.5 ? '⚠️ Needs Validation' : '✓ Active/Validated'}
+                {displayClaim.staleness_score > 0.5 ? '⚠️ Needs Verification' : '✓ Verified & Active'}
               </span>
-              <span className="text-[10px] text-slate-500 font-mono">({Math.round(displayClaim.staleness_score * 100)}%)</span>
+              <span className="text-[10px] text-slate-500 font-mono">({Math.round(displayClaim.staleness_score * 100)}% age)</span>
             </div>
           </div>
         </div>
@@ -140,21 +141,21 @@ export default function ClaimDetail({ claimId }: ClaimDetailProps) {
         {/* ── Confidence History Timeline ── */}
         <div className="space-y-3">
           <h4 className="text-xs font-mono font-bold text-slate-400 uppercase tracking-widest">
-            Confidence Evolution Timeline
+            Confidence Change History
           </h4>
           {history.length === 0 ? (
             <div className="p-3 bg-slate-50 border border-[#E2E8F0] rounded-xl text-center text-[10px] text-slate-500 font-mono">
-              No previous confidence updates recorded. Initial baseline level is {Math.round(displayClaim.confidence * 100)}%.
+              Initial baseline confidence is {Math.round(displayClaim.confidence * 100)}%. No updates recorded.
             </div>
           ) : (
             <div className="relative border-l border-[#E2E8F0] ml-2 pl-4 py-2 space-y-4">
               {history.map((entry: any, index: number) => (
                 <div key={entry.id || index} className="relative">
                   {/* Timeline dot */}
-                  <span className="absolute -left-[21px] top-1.5 w-2 h-2 rounded-full bg-blue-500 border border-[#101420]" />
+                  <span className="absolute -left-[21px] top-1.5 w-2 h-2 rounded-full bg-blue-500 border border-white" />
                   <div className="text-[10px] font-mono text-slate-400 flex items-center justify-between">
                     <span className="font-semibold text-slate-800">
-                      Certitude Shifted to {Math.round((entry.confidence_after ?? entry.confidence) * 100)}%
+                      Confidence Updated to {Math.round((entry.confidence_after ?? entry.confidence) * 100)}%
                     </span>
                     <span className="text-slate-500">
                       {new Date(entry.timestamp ?? entry.recorded_at).toLocaleDateString()}
@@ -174,7 +175,7 @@ export default function ClaimDetail({ claimId }: ClaimDetailProps) {
         {/* Evidence List */}
         <div className="space-y-4 pt-3 border-t border-[#E2E8F0]/60">
           <h4 className="text-xs font-mono font-bold text-slate-400 uppercase tracking-widest">
-            Supporting & Contradicting Evidence
+            Customer Evidence (Pros & Cons)
           </h4>
 
           <div className="space-y-4">
@@ -183,28 +184,30 @@ export default function ClaimDetail({ claimId }: ClaimDetailProps) {
                 key={ev.id}
                 className={`p-4 rounded-xl border ${
                   ev.polarity === 'supporting'
-                    ? 'border-emerald-900/40 bg-emerald-950/5'
-                    : 'border-red-900/40 bg-red-950/5'
+                    ? 'border-emerald-200 bg-emerald-50/40'
+                    : 'border-red-200 bg-red-50/40'
                 }`}
               >
-                <div className="flex justify-between items-center mb-3 text-[9px] font-mono">
+                <div className="flex justify-between items-center mb-3 text-[10px] font-mono">
                   <span className={`font-bold uppercase tracking-widest ${
-                    ev.polarity === 'supporting' ? 'text-emerald-400' : 'text-red-400'
+                    ev.polarity === 'supporting' ? 'text-emerald-700' : 'text-red-700'
                   }`}>
-                    {ev.polarity === 'supporting' ? '✓ Supporting' : '✗ Contradicting'} ({Math.round(ev.weight * 100)}% Weight)
+                    {ev.polarity === 'supporting' ? '✓ Supporting Evidence' : '✗ Conflicting / Contrary Evidence'} ({Math.round(ev.weight * 100)}% Impact)
                   </span>
                   <span className="text-slate-500">
-                    {ev.days_old} days old
+                    {ev.days_old !== undefined ? `${ev.days_old} days old` : 'Recent'}
                   </span>
                 </div>
                 
-                <p className="text-xs text-slate-800 font-light leading-relaxed mb-3">
-                  {ev.content}
+                <p className="text-xs text-slate-800 font-normal leading-relaxed mb-3">
+                  "{ev.content}"
                 </p>
                 
-                <div className="text-[9px] text-slate-400 font-mono flex flex-col gap-0.5 bg-[#F9F9FB]/80 p-2.5 rounded-lg border border-[#E2E8F0]">
-                  <span className="truncate text-slate-600"><span className="text-slate-400 font-semibold uppercase mr-1">Source:</span>{ev.source_document}</span>
-                  <span className="truncate text-slate-600"><span className="text-slate-400 font-semibold uppercase mr-1">Ref:</span>{ev.source_chunk}</span>
+                <div className="text-[10px] text-slate-500 font-mono flex flex-col gap-0.5 bg-white p-2.5 rounded-lg border border-[#CBD5E1]">
+                  <span className="truncate text-slate-700"><span className="text-slate-400 font-semibold uppercase mr-1">Document Source:</span>{ev.source_document || 'Research File'}</span>
+                  {ev.source_chunk && (
+                    <span className="truncate text-slate-500"><span className="text-slate-400 font-semibold uppercase mr-1">Section:</span>{ev.source_chunk}</span>
+                  )}
                 </div>
               </div>
             ))}
