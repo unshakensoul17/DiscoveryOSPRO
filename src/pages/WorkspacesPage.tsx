@@ -97,28 +97,30 @@ export default function WorkspacesPage() {
     }
   }
 
+  const inputClass = "w-full glass-strong rounded-xl px-3 py-2.5 text-sm text-foreground placeholder-[var(--muted-foreground)] focus:outline-none focus:border-[rgba(255,26,26,0.5)] transition-colors"
+
   return (
-    <div className="min-h-screen bg-[#F9F9FB] text-slate-900 flex flex-col justify-center items-center p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-[var(--background)] text-foreground flex flex-col justify-center items-center p-6 relative overflow-hidden">
       {/* Background gradients */}
-      <div className="absolute top-[-25%] left-[-10%] w-[60%] h-[60%] bg-blue-900/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-[-25%] right-[-10%] w-[60%] h-[60%] bg-indigo-900/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-[-25%] left-[-10%] w-[60%] h-[60%] bg-[rgba(255,26,26,0.05)] rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-[-25%] right-[-10%] w-[60%] h-[60%] bg-[rgba(255,26,26,0.03)] rounded-full blur-[140px] pointer-events-none" />
 
       <div className="w-full max-w-4xl z-10 my-12">
         <header className="text-center mb-12">
-          <div className="inline-block px-3 py-1 bg-blue-50 border border-blue-500/20 text-blue-400 text-xs font-mono rounded-full mb-3 uppercase tracking-wider">
+          <div className="inline-block px-3 py-1 bg-[rgba(255,26,26,0.08)] border border-[rgba(255,26,26,0.35)] text-[var(--primary)] text-[10px] font-mono rounded-full mb-3 uppercase tracking-widest">
             Consensus Environment Selector
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 mb-3">
+          <h1 className="text-4xl font-extrabold tracking-tight text-glow mb-3" style={{ background: 'var(--gradient-red)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             Select Your Environment
           </h1>
-          <p className="text-slate-400 text-base max-w-lg mx-auto font-light">
+          <p className="text-muted-foreground text-sm max-w-lg mx-auto font-light leading-relaxed">
             Each workspace represents an isolated network of claims, evidence, and logical contradictions.
           </p>
         </header>
 
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500" />
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--primary)]" />
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -126,13 +128,13 @@ export default function WorkspacesPage() {
               <div
                 key={ws.id}
                 onClick={() => handleSelect(ws.id)}
-                className="group relative bg-[#FFFFFF]/80 border border-[#E2E8F0] hover:border-blue-500/50 rounded-xl p-6 cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/5 hover:-translate-y-0.5 flex flex-col justify-between"
+                className="group relative glass hover:border-[rgba(255,26,26,0.4)] rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-[rgba(255,26,26,0.1)] hover:-translate-y-0.5 flex flex-col justify-between"
               >
-                {/* Delete button (show only for non-default workspaces) */}
+                {/* Delete button */}
                 {ws.id !== 'ws-1' && (
                   <button
                     onClick={(e) => handleDelete(e, ws.id)}
-                    className="absolute top-4 right-4 text-slate-500 hover:text-red-600 p-1 rounded hover:bg-red-50 transition-colors z-20"
+                    className="absolute top-4 right-4 text-muted-foreground hover:text-[var(--primary)] p-1 rounded hover:bg-white/5 transition-colors z-20"
                     title="Delete Workspace"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -143,18 +145,18 @@ export default function WorkspacesPage() {
 
                 <div>
                   <div className="flex items-center justify-between mb-4 pr-6">
-                    <span className="text-[10px] font-mono font-semibold px-2 py-0.5 border border-[#E2E8F0] text-slate-400 rounded-md uppercase tracking-wider bg-slate-100">
+                    <span className="text-[9px] font-mono font-semibold px-2 py-0.5 border border-white/10 text-muted-foreground rounded bg-white/5 uppercase tracking-widest">
                       {ws.role || 'admin'}
                     </span>
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-blue-400 transition-colors">
+                  <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-[var(--primary)] transition-colors">
                     {ws.name}
                   </h3>
-                  <p className="text-slate-400 text-sm mb-6 font-light leading-relaxed">
+                  <p className="text-muted-foreground text-sm mb-6 font-light leading-relaxed">
                     {ws.description || 'No description provided for this sandbox.'}
                   </p>
                 </div>
-                <div className="flex items-center justify-between text-xs text-slate-500 border-t border-[#E2E8F0]/60 pt-4 font-mono">
+                <div className="flex items-center justify-between text-[10px] text-muted-foreground border-t border-white/10 pt-4 font-mono uppercase tracking-wider">
                   <span>👥 {ws.member_count || 1} active minds</span>
                   <span>📅 {ws.created_at ? new Date(ws.created_at).toLocaleDateString() : new Date().toLocaleDateString()}</span>
                 </div>
@@ -164,13 +166,13 @@ export default function WorkspacesPage() {
             {/* Create Workspace Trigger Card */}
             <div 
               onClick={() => setShowCreateModal(true)}
-              className="border border-dashed border-[#E2E8F0] hover:border-blue-500/30 bg-slate-50 rounded-xl p-6 flex flex-col justify-center items-center text-center cursor-pointer transition-colors group"
+              className="border-2 border-dashed border-white/10 hover:border-[rgba(255,26,26,0.3)] bg-white/[0.02] hover:bg-white/[0.04] rounded-2xl p-6 flex flex-col justify-center items-center text-center cursor-pointer transition-colors group"
             >
-              <span className="text-2xl mb-2 text-slate-500 group-hover:scale-110 transition-transform duration-200">＋</span>
-              <h3 className="text-base font-bold text-slate-600 group-hover:text-blue-400 transition-colors">
+              <span className="text-3xl mb-3 text-muted-foreground group-hover:scale-110 transition-transform duration-200">＋</span>
+              <h3 className="text-base font-bold text-muted-foreground group-hover:text-[var(--primary)] transition-colors">
                 Create Workspace
               </h3>
-              <p className="text-slate-500 text-xs mt-1 font-light max-w-[200px]">
+              <p className="text-muted-foreground text-[10px] mt-1.5 font-light max-w-[200px] uppercase tracking-wider font-mono">
                 Establish a new environment for evidence-based verification.
               </p>
             </div>
@@ -180,71 +182,74 @@ export default function WorkspacesPage() {
 
       {/* Creation Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-[#F9F9FB]/85 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl p-6 w-full max-w-md shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="glass rounded-2xl p-6 w-full max-w-md relative shadow-2xl border border-white/10">
+            {/* Glow orb */}
+            <div className="pointer-events-none absolute -top-12 -right-12 h-40 w-40 rounded-full bg-[radial-gradient(circle,rgba(255,26,26,0.2),transparent_60%)] blur-2xl" />
+
             {/* Close Button */}
             <button
               onClick={() => setShowCreateModal(false)}
-              className="absolute top-4 right-4 text-slate-500 hover:text-slate-700 transition-colors p-1"
+              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors p-1"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
 
-            <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
+            <h3 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
               <span>🚀</span> Create New Workspace
             </h3>
-            <p className="text-xs text-slate-400 mb-6 font-light leading-relaxed">
+            <p className="text-xs text-muted-foreground mb-6 font-light leading-relaxed">
               Create a fresh, empty workspace sandbox for claim verification and document ingestion.
             </p>
 
-            <form onSubmit={handleCreateSubmit} className="space-y-5">
+            <form onSubmit={handleCreateSubmit} className="space-y-4">
               {errorMsg && (
-                <div className="p-3 bg-red-950/40 border border-red-800/40 rounded-lg text-red-400 text-xs">
+                <div className="p-3 bg-[rgba(255,26,26,0.1)] border border-[rgba(255,26,26,0.35)] rounded-xl text-[var(--primary)] text-xs">
                   {errorMsg}
                 </div>
               )}
 
               <div>
-                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2 font-mono">
+                <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 font-mono">
                   Workspace Name
                 </label>
                 <input
                   type="text"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="w-full bg-[#F1F5F9] border border-[#CBD5E1] text-slate-900 rounded-lg px-3 py-2.5 text-xs focus:outline-none focus:border-blue-500/80 transition-colors"
+                  className={inputClass}
                   placeholder="e.g. Fintech Project A"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2 font-mono">
+                <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 font-mono">
                   Workspace Description
                 </label>
                 <textarea
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
                   rows={3}
-                  className="w-full bg-[#F1F5F9] border border-[#CBD5E1] text-slate-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-blue-500/80 resize-none transition-colors"
+                  className={`${inputClass} resize-none`}
                   placeholder="Verify core value propositions and metric evidence..."
                 />
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-[#E2E8F0]">
+              <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 bg-slate-100 border border-[#E2E8F0] hover:border-slate-300 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition-colors"
+                  className="px-4 py-2 glass-strong hover:bg-white/10 text-foreground font-semibold rounded-xl text-xs transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting || !newName.trim()}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 text-white font-semibold rounded-lg text-xs transition-colors shadow-md shadow-blue-600/10"
+                  className="px-4 py-2 bg-[var(--gradient-red)] disabled:opacity-40 text-white font-semibold rounded-xl text-xs transition-transform red-glow hover:scale-[1.02]"
                 >
                   {submitting ? 'Creating...' : 'Create Workspace'}
                 </button>

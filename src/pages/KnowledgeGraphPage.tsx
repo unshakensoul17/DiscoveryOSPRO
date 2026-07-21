@@ -122,21 +122,21 @@ export default function KnowledgeGraphPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-glow flex items-center gap-2" style={{ background: 'var(--gradient-red)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             <span>🧠</span> Knowledge Graph & Discovery Copilot
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-muted-foreground mt-1 font-light">
             GraphRAG-powered intelligence engine modeling relational claims, evidence, and polarities.
           </p>
         </div>
 
         <button
           onClick={() => workspaceId && fetchGraphData(workspaceId)}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs rounded-lg transition-colors shadow-sm flex items-center gap-2 self-start md:self-auto cursor-pointer"
+          className="px-4 py-2 bg-[var(--gradient-red)] text-white font-semibold text-xs rounded-xl transition-transform red-glow hover:scale-[1.02] flex items-center gap-2 self-start md:self-auto cursor-pointer"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -147,21 +147,21 @@ export default function KnowledgeGraphPage() {
 
       {/* Analytics Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-slate-200 p-4 rounded-xl shadow-xs">
-          <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Graph Nodes</div>
-          <div className="text-2xl font-bold text-slate-900 mt-1">{analytics?.total_nodes || 0}</div>
+        <div className="glass rounded-xl p-4">
+          <div className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-wider">Total Graph Nodes</div>
+          <div className="text-2xl font-bold mt-1 text-foreground">{analytics?.total_nodes || 0}</div>
         </div>
-        <div className="bg-white border border-slate-200 p-4 rounded-xl shadow-xs">
-          <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Relational Edges</div>
-          <div className="text-2xl font-bold text-blue-600 mt-1">{analytics?.total_edges || 0}</div>
+        <div className="glass rounded-xl p-4">
+          <div className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-wider">Relational Edges</div>
+          <div className="text-2xl font-bold mt-1 text-blue-400">{analytics?.total_edges || 0}</div>
         </div>
-        <div className="bg-white border border-slate-200 p-4 rounded-xl shadow-xs">
-          <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Pillar Beliefs</div>
-          <div className="text-2xl font-bold text-emerald-600 mt-1">{analytics?.top_pillar_beliefs?.length || 0}</div>
+        <div className="glass rounded-xl p-4">
+          <div className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-wider">Pillar Beliefs</div>
+          <div className="text-2xl font-bold mt-1 text-emerald-400">{analytics?.top_pillar_beliefs?.length || 0}</div>
         </div>
-        <div className="bg-white border border-slate-200 p-4 rounded-xl shadow-xs">
-          <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Unvalidated Assumptions</div>
-          <div className="text-2xl font-bold text-amber-600 mt-1">{analytics?.isolated_assumptions?.length || 0}</div>
+        <div className="glass rounded-xl p-4">
+          <div className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-wider">Unvalidated Assumptions</div>
+          <div className="text-2xl font-bold mt-1 text-amber-500">{analytics?.isolated_assumptions?.length || 0}</div>
         </div>
       </div>
 
@@ -169,51 +169,51 @@ export default function KnowledgeGraphPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left 2 Cols: Graph Node Explorer */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
-            <h2 className="text-base font-semibold text-slate-900 mb-4 flex items-center justify-between">
+          <div className="glass rounded-2xl p-5">
+            <h2 className="text-sm font-bold mb-4 flex items-center justify-between">
               <span>Graph Node Explorer ({nodes.length} Nodes)</span>
-              <span className="text-xs font-normal text-slate-400">Click node for details</span>
+              <span className="text-[10px] font-mono text-muted-foreground">Click node for details</span>
             </h2>
 
             {loading ? (
-              <div className="h-64 flex items-center justify-center text-slate-400 text-sm">
+              <div className="h-64 flex items-center justify-center text-muted-foreground text-sm font-mono">
                 Building workspace graph...
               </div>
             ) : nodes.length === 0 ? (
-              <div className="h-48 flex items-center justify-center text-slate-400 text-sm border-2 border-dashed border-slate-200 rounded-lg">
+              <div className="h-48 flex items-center justify-center text-muted-foreground text-xs font-light border-2 border-dashed border-white/10 rounded-xl">
                 No graph nodes found. Upload a document in Ingestion Hub to build nodes.
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto pr-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto pr-1 custom-scrollbar">
                 {nodes.map((node) => (
                   <div
                     key={node.id}
                     onClick={() => setSelectedNode(node)}
-                    className={`p-3 rounded-lg border text-left cursor-pointer transition-all ${
+                    className={`p-4 rounded-xl border text-left cursor-pointer transition-all ${
                       selectedNode?.id === node.id
-                        ? 'border-blue-500 bg-blue-50/50 shadow-xs'
-                        : 'border-slate-200 hover:border-slate-300 bg-slate-50/50'
+                        ? 'border-[rgba(255,26,26,0.5)] bg-[rgba(255,26,26,0.08)] shadow-lg shadow-[rgba(255,26,26,0.15)]'
+                        : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between mb-2">
                       <span
-                        className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                        className={`text-[9px] font-mono uppercase px-2 py-0.5 rounded-full border ${
                           node.node_type === 'claim'
-                            ? 'bg-blue-100 text-blue-700'
+                            ? 'bg-blue-900/20 text-blue-400 border-blue-800/40'
                             : node.node_type === 'evidence'
-                            ? 'bg-purple-100 text-purple-700'
-                            : 'bg-slate-200 text-slate-700'
+                            ? 'bg-purple-900/20 text-purple-400 border-purple-800/40'
+                            : 'bg-white/5 text-muted-foreground border-white/10'
                         }`}
                       >
                         {node.node_type}
                       </span>
                       {node.confidence !== undefined && (
-                        <span className="text-[10px] font-mono text-slate-500">
+                        <span className="text-[9px] font-mono text-muted-foreground">
                           {Math.round(node.confidence * 100)}% conf
                         </span>
                       )}
                     </div>
-                    <p className="text-xs font-medium text-slate-800 line-clamp-2">
+                    <p className="text-xs font-medium text-foreground line-clamp-2 leading-relaxed">
                       {node.content || node.label}
                     </p>
                   </div>
@@ -224,36 +224,37 @@ export default function KnowledgeGraphPage() {
 
           {/* Selected Node Drawer */}
           {selectedNode && (
-            <div className="bg-slate-900 text-white rounded-xl p-5 shadow-md border border-slate-800 animate-fade-in">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-mono text-blue-400 uppercase tracking-widest">
+            <div className="glass-strong rounded-2xl p-5 border border-[rgba(255,26,26,0.3)] animate-fade-in relative overflow-hidden">
+              <div className="pointer-events-none absolute -top-12 -right-12 h-40 w-40 rounded-full bg-[radial-gradient(circle,rgba(255,26,26,0.15),transparent_70%)] blur-2xl" />
+              <div className="flex items-center justify-between mb-3 relative">
+                <span className="text-[10px] font-mono text-[var(--primary)] uppercase tracking-widest font-semibold">
                   Selected Node Inspector
                 </span>
                 <button
                   onClick={() => setSelectedNode(null)}
-                  className="text-slate-400 hover:text-white text-xs cursor-pointer"
+                  className="text-muted-foreground hover:text-foreground text-xs cursor-pointer transition-colors"
                 >
                   ✕ Close
                 </button>
               </div>
-              <div className="text-xs font-mono text-slate-400 mb-2">ID: {selectedNode.id}</div>
-              <p className="text-sm font-medium text-slate-100 mb-3">{selectedNode.content || selectedNode.label}</p>
+              <div className="text-[10px] font-mono text-muted-foreground mb-3 relative">ID: {selectedNode.id}</div>
+              <p className="text-sm font-medium text-foreground mb-4 leading-relaxed relative">{selectedNode.content || selectedNode.label}</p>
 
               {/* Connected Edges */}
-              <div className="border-t border-slate-800 pt-3">
-                <div className="text-xs font-semibold text-slate-400 mb-2">Direct Relationships:</div>
-                <div className="space-y-1">
+              <div className="border-t border-white/10 pt-4 relative">
+                <div className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-wider mb-3">Direct Relationships:</div>
+                <div className="space-y-2">
                   {edges
                     .filter((e) => e.source === selectedNode.id || e.target === selectedNode.id)
                     .map((e, idx) => (
-                      <div key={idx} className="text-xs text-slate-300 font-mono flex items-center gap-2">
-                        <span className="text-blue-400 font-bold">{e.relation_type}</span>
-                        <span>➔</span>
+                      <div key={idx} className="text-xs text-foreground font-mono flex items-center gap-2 glass px-3 py-2 rounded-lg">
+                        <span className="text-[var(--primary)] font-bold uppercase">{e.relation_type}</span>
+                        <span className="text-muted-foreground">➔</span>
                         <span className="truncate">{e.source === selectedNode.id ? e.target : e.source}</span>
                       </div>
                     ))}
                   {edges.filter((e) => e.source === selectedNode.id || e.target === selectedNode.id).length === 0 && (
-                    <div className="text-xs text-slate-500 italic">No direct edges connected yet.</div>
+                    <div className="text-xs text-muted-foreground italic">No direct edges connected yet.</div>
                   )}
                 </div>
               </div>
@@ -263,36 +264,36 @@ export default function KnowledgeGraphPage() {
           {/* Pillar Beliefs & Isolated Assumptions Breakdown */}
           {analytics && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                  <span className="text-emerald-500">★</span> PageRank Pillar Beliefs
+              <div className="glass rounded-2xl p-5">
+                <h3 className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-1.5">
+                  <span className="text-emerald-400">★</span> PageRank Pillar Beliefs
                 </h3>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {analytics.top_pillar_beliefs.map((b) => (
-                    <div key={b.id} className="p-2 bg-slate-50 rounded border border-slate-100 text-xs">
-                      <div className="font-medium text-slate-800 line-clamp-1">{b.content}</div>
-                      <div className="text-[10px] text-slate-400 mt-1 font-mono">Rank Score: {b.pagerank_score}</div>
+                    <div key={b.id} className="p-3 glass-strong rounded-xl">
+                      <div className="text-xs font-medium text-foreground line-clamp-2 leading-relaxed">{b.content}</div>
+                      <div className="text-[9px] text-emerald-400/80 mt-2 font-mono uppercase tracking-wider">Rank Score: {b.pagerank_score}</div>
                     </div>
                   ))}
                   {analytics.top_pillar_beliefs.length === 0 && (
-                    <div className="text-xs text-slate-400 italic">No claims scored yet.</div>
+                    <div className="text-xs text-muted-foreground italic">No claims scored yet.</div>
                   )}
                 </div>
               </div>
 
-              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <h3 className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                  <span>⚠️</span> Unvalidated Assumptions (0 In-Edges)
+              <div className="glass rounded-2xl p-5">
+                <h3 className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-1.5">
+                  <span className="text-amber-500">⚠️</span> Unvalidated Assumptions (0 In-Edges)
                 </h3>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {analytics.isolated_assumptions.map((a) => (
-                    <div key={a.id} className="p-2 bg-amber-50/50 rounded border border-amber-100 text-xs">
-                      <div className="font-medium text-amber-900 line-clamp-1">{a.content}</div>
-                      <div className="text-[10px] text-amber-700 mt-1 font-mono">Needs supporting evidence</div>
+                    <div key={a.id} className="p-3 border border-amber-500/20 bg-amber-500/5 rounded-xl">
+                      <div className="text-xs font-medium text-foreground line-clamp-2 leading-relaxed">{a.content}</div>
+                      <div className="text-[9px] text-amber-500/80 mt-2 font-mono uppercase tracking-wider">Needs supporting evidence</div>
                     </div>
                   ))}
                   {analytics.isolated_assumptions.length === 0 && (
-                    <div className="text-xs text-emerald-600 font-medium">All assumptions have supporting evidence!</div>
+                    <div className="text-[10px] font-mono text-emerald-400 font-medium">All assumptions have supporting evidence!</div>
                   )}
                 </div>
               </div>
@@ -301,40 +302,40 @@ export default function KnowledgeGraphPage() {
         </div>
 
         {/* Right 1 Col: Discovery Copilot Chat */}
-        <div className="bg-white border border-slate-200 rounded-xl flex flex-col h-[600px] shadow-xs overflow-hidden">
-          <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+        <div className="glass rounded-2xl flex flex-col h-[600px] overflow-hidden">
+          <div className="p-4 border-b border-white/10 glass-strong flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-sm font-bold text-slate-900">Discovery Copilot</span>
+              <div className="w-2 h-2 rounded-full bg-[var(--primary)] shadow-[0_0_8px_rgba(255,26,26,0.8)] animate-pulse" />
+              <span className="text-sm font-bold text-foreground">Discovery Copilot</span>
             </div>
-            <span className="text-[10px] font-mono text-slate-400">GraphRAG v1.0</span>
+            <span className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest">GraphRAG v1.0</span>
           </div>
 
           {/* Chat History */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-50/30">
+          <div className="flex-1 p-5 overflow-y-auto space-y-4">
             {chatMessages.map((msg, idx) => (
               <div
                 key={idx}
                 className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
               >
                 <div
-                  className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-xs shadow-xs leading-relaxed ${
+                  className={`max-w-[85%] rounded-2xl px-4 py-3 text-xs leading-relaxed ${
                     msg.sender === 'user'
-                      ? 'bg-blue-600 text-white rounded-br-none'
-                      : 'bg-white text-slate-800 border border-slate-200 rounded-bl-none'
+                      ? 'bg-[var(--gradient-red)] text-white rounded-br-none shadow-[0_4px_12px_rgba(255,26,26,0.15)]'
+                      : 'glass-strong text-foreground border border-white/10 rounded-bl-none'
                   }`}
                 >
                   <p className="whitespace-pre-wrap">{msg.text}</p>
 
                   {/* Citations */}
                   {msg.citations && msg.citations.length > 0 && (
-                    <div className="mt-3 pt-2 border-t border-slate-100 space-y-1">
-                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Cites Graph Nodes:</div>
-                      <div className="flex flex-wrap gap-1">
+                    <div className="mt-3 pt-3 border-t border-white/10 space-y-1.5">
+                      <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Cites Graph Nodes:</div>
+                      <div className="flex flex-wrap gap-1.5">
                         {msg.citations.map((c) => (
                           <span
                             key={c.id}
-                            className="inline-block text-[9px] font-mono bg-blue-50 text-blue-700 border border-blue-200 rounded px-1.5 py-0.5"
+                            className="inline-block text-[9px] font-mono bg-blue-900/20 text-blue-400 border border-blue-800/40 rounded px-2 py-0.5"
                           >
                             [{c.type}] {c.label.slice(0, 20)}...
                           </span>
@@ -346,27 +347,31 @@ export default function KnowledgeGraphPage() {
               </div>
             ))}
             {isAsking && (
-              <div className="flex items-center gap-2 text-xs text-slate-400 italic">
-                <div className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
-                Copilot searching Knowledge Graph sub-graph...
+              <div className="flex items-center gap-2 text-xs text-muted-foreground italic font-mono pl-2">
+                <div className="flex gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-1.5 h-1.5 rounded-full bg-[var(--primary)] animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+                Copilot searching Knowledge Graph...
               </div>
             )}
           </div>
 
           {/* Chat Form */}
-          <form onSubmit={handleAskCopilot} className="p-3 border-t border-slate-200 bg-white flex gap-2">
+          <form onSubmit={handleAskCopilot} className="p-4 border-t border-white/10 glass-strong flex gap-3">
             <input
               type="text"
               value={queryInput}
               onChange={(e) => setQueryInput(e.target.value)}
               placeholder="Ask Copilot about pricing, evidence, assumptions..."
-              className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-900"
+              className="flex-1 glass-strong border border-white/10 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-[rgba(255,26,26,0.5)] text-foreground placeholder-[var(--muted-foreground)] transition-colors"
               disabled={isAsking}
             />
             <button
               type="submit"
               disabled={isAsking || !queryInput.trim()}
-              className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+              className="bg-[var(--gradient-red)] disabled:opacity-40 text-white px-5 py-2.5 rounded-xl text-xs font-semibold transition-transform red-glow hover:scale-[1.02] cursor-pointer"
             >
               Ask
             </button>
@@ -376,3 +381,4 @@ export default function KnowledgeGraphPage() {
     </div>
   )
 }
+

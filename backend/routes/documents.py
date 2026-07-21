@@ -76,18 +76,10 @@ async def ingest_document(
     db.commit()
     db.refresh(doc)
     
-    # Resilient background execution:
-    # Trigger Celery background task. If it fails or is in eager/fallback mode, run in FastAPI BackgroundTasks
-    task_triggered = False
-    try:
-        # Check if Celery can queue the task
-        run_evidence_synthesis.delay(doc.id, workspace_id)
-        task_triggered = True
-        logger_msg = "Celery task dispatched"
-    except Exception as e:
-        # Fallback to FastAPI BackgroundTasks thread
-        background_tasks.add_task(run_evidence_synthesis, doc.id, workspace_id)
-        logger_msg = f"FastAPI BackgroundTask fallback (Celery dispatch failed: {e})"
+    # Resilient background execution for Hackathon Demo:
+    # Always use FastAPI BackgroundTasks to avoid requiring Redis/Celery on stage.
+    background_tasks.add_task(run_evidence_synthesis, doc.id, workspace_id)
+    logger_msg = "FastAPI BackgroundTasks (Demo Mode)"
         
     return {
         "id": doc.id,
