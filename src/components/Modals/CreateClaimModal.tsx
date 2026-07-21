@@ -27,7 +27,7 @@ export default function CreateClaimModal() {
     }
   }
 
-  const inputClass = "w-full glass-strong rounded-xl px-3 py-2.5 text-sm text-foreground placeholder-[var(--muted-foreground)] focus:outline-none focus:border-[rgba(255,26,26,0.5)] transition-colors resize-none"
+  const inputClass = "w-full glass-strong rounded-xl px-3 py-2.5 text-sm text-foreground placeholder-[var(--muted-foreground)] focus:outline-none focus:border-[rgba(255,26,26,0.5)] transition-colors resize-none [&>option]:bg-zinc-900 [&>option]:text-white"
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50">
@@ -75,10 +75,10 @@ export default function CreateClaimModal() {
               onChange={(e) => setType(e.target.value)}
               className={inputClass}
             >
-              <option value="strategic_belief">Strategic Belief</option>
-              <option value="metric">Metric</option>
-              <option value="assumption">Assumption</option>
-              <option value="operational_fact">Operational Fact</option>
+              <option className="bg-zinc-900 text-white" value="strategic_belief">Strategic Belief</option>
+              <option className="bg-zinc-900 text-white" value="metric">Metric</option>
+              <option className="bg-zinc-900 text-white" value="assumption">Assumption</option>
+              <option className="bg-zinc-900 text-white" value="operational_fact">Operational Fact</option>
             </select>
           </div>
 

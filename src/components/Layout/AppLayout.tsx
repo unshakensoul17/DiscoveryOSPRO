@@ -1,5 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useAuthStore } from '../../store/auth'
+import { useWorkspaceStore } from '../../store/workspace'
+import { apiClient } from '../../api/client'
 import { Sidebar } from '../dashboard/Sidebar'
 import { TopNav } from '../dashboard/TopNav'
 import UploadModal from '../Modals/UploadModal'
@@ -11,7 +13,27 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const { user } = useAuthStore()
+  const { workspaces, setWorkspaces } = useWorkspaceStore()
   
+  useEffect(() => {
+    if (user && workspaces.length === 0) {
+      apiClient.get<any>('/workspaces')
+        .then(({ data }) => {
+          const list = Array.isArray(data) ? data : (data.data || [])
+          setWorkspaces(list)
+        })
+        .catch((err) => {
+          console.warn('AppLayout workspace fetch failed', err)
+          // Fallback just like WorkspacesPage if backend is down
+          setWorkspaces([{
+            id: 'ws-1', name: 'Test Workspace', description: 'Primary', created_by: 'u-1',
+            created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+            member_count: 5, role: 'admin', config: {}
+          }])
+        })
+    }
+  }, [user, workspaces.length, setWorkspaces])
+
   if (!user) {
     return null
   }

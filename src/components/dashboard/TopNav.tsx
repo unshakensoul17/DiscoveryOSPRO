@@ -1,9 +1,29 @@
 import { Bell, Command, Search, Plus, Download, Menu } from "lucide-react";
 import { motion } from "framer-motion";
 import { useUIStore } from "../../store/ui";
+import { useWorkspaceStore } from "../../store/workspace";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 export function TopNav() {
   const { openCreateClaimModal, openUploadModal, toggleSidebar } = useUIStore();
+  const { workspaces } = useWorkspaceStore();
+  const navigate = useNavigate();
+  const { workspaceId } = useParams<{ workspaceId: string }>();
+  const location = useLocation();
+
+  const handleWorkspaceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newWsId = e.target.value;
+    if (newWsId && newWsId !== workspaceId) {
+      const currentPath = location.pathname;
+      const parts = currentPath.split('/');
+      if (parts.length > 3 && parts[1] === 'workspaces') {
+        parts[2] = newWsId;
+        navigate(parts.join('/'));
+      } else {
+        navigate(`/workspaces/${newWsId}/dashboard`);
+      }
+    }
+  };
 
   return (
     <motion.header
@@ -24,21 +44,20 @@ export function TopNav() {
           Workspace
         </div>
         <div className="h-4 w-px bg-white/10" />
-        <div className="text-sm font-semibold">Nucleus / Overview</div>
+        <select 
+          value={workspaceId || ''} 
+          onChange={handleWorkspaceChange}
+          className="bg-transparent text-sm font-semibold text-foreground outline-none cursor-pointer hover:text-[var(--primary)] transition-colors pr-2 [&>option]:bg-zinc-900 [&>option]:text-white"
+        >
+          {workspaces.map((ws) => (
+            <option key={ws.id} value={ws.id}>
+              {ws.name} / {location.pathname.split('/')[3] || 'Overview'}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="ml-auto flex items-center gap-2">
-        <div className="glass-strong hidden items-center gap-2 rounded-xl px-3 py-2 text-sm text-muted-foreground md:flex">
-          <Search className="h-4 w-4" />
-          <input
-            placeholder="Ask AI or search…"
-            className="w-56 bg-transparent outline-none placeholder:text-muted-foreground"
-          />
-          <div className="flex items-center gap-1 rounded-md border border-white/10 px-1.5 py-0.5 text-[10px]">
-            <Command className="h-3 w-3" /> K
-          </div>
-        </div>
-        
         <button 
           onClick={openUploadModal}
           className="glass-strong flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-white/10"

@@ -20,9 +20,9 @@ export default function ClaimsFilter() {
           onChange={(e) => setClaimsFilters({ status: (e.target.value || null) as any })}
           className={selectClass}
         >
-          <option value="active">Active Hypotheses</option>
-          <option value="archived">Archived Hypotheses</option>
-          <option value="">All Statuses</option>
+          <option className="bg-zinc-900 text-white" value="active">Active Hypotheses</option>
+          <option className="bg-zinc-900 text-white" value="archived">Archived Hypotheses</option>
+          <option className="bg-zinc-900 text-white" value="">All Statuses</option>
         </select>
       </div>
 
@@ -35,11 +35,11 @@ export default function ClaimsFilter() {
           onChange={(e) => setClaimsFilters({ type: e.target.value || null })}
           className={selectClass}
         >
-          <option value="">All Types</option>
-          <option value="strategic_belief">Strategic Hypothesis</option>
-          <option value="metric">Empirical Metric</option>
-          <option value="assumption">Base Assumption</option>
-          <option value="operational_fact">Operational Fact</option>
+          <option className="bg-zinc-900 text-white" value="">All Types</option>
+          <option className="bg-zinc-900 text-white" value="strategic_belief">Strategic Hypothesis</option>
+          <option className="bg-zinc-900 text-white" value="metric">Empirical Metric</option>
+          <option className="bg-zinc-900 text-white" value="assumption">Base Assumption</option>
+          <option className="bg-zinc-900 text-white" value="operational_fact">Operational Fact</option>
         </select>
       </div>
 
@@ -52,10 +52,10 @@ export default function ClaimsFilter() {
           onChange={(e) => setClaimsFilters({ staleness: (e.target.value || null) as any })}
           className={selectClass}
         >
-          <option value="">All Ages</option>
-          <option value="fresh">Fresh (&lt; 5d)</option>
-          <option value="aging">Aging (&gt; 10d)</option>
-          <option value="stale">Stale (&gt; 30d)</option>
+          <option className="bg-zinc-900 text-white" value="">All Ages</option>
+          <option className="bg-zinc-900 text-white" value="fresh">Fresh (&lt; 5d)</option>
+          <option className="bg-zinc-900 text-white" value="aging">Aging (&gt; 10d)</option>
+          <option className="bg-zinc-900 text-white" value="stale">Stale (&gt; 30d)</option>
         </select>
       </div>
     </div>

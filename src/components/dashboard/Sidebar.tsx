@@ -5,8 +5,6 @@ import {
   ListChecks,
   Upload,
   Network,
-  Settings,
-  LifeBuoy,
   X,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
@@ -55,17 +53,20 @@ export function Sidebar() {
         >
           <X className="h-4 w-4 text-white" />
         </button>
-        <div className="flex items-center gap-2 px-2 py-3">
+        <button 
+        onClick={() => navigate('/workspaces')}
+        className="flex items-center gap-2 px-2 py-3 w-full text-left hover:bg-white/5 rounded-xl transition-colors"
+      >
         <div className="relative grid h-9 w-9 place-items-center rounded-xl bg-[var(--gradient-red)] red-glow">
           <div className="h-2.5 w-2.5 rounded-full bg-white" />
         </div>
         <div>
-          <div className="text-sm font-bold tracking-tight">Nucleus</div>
+          <div className="text-sm font-bold tracking-tight text-foreground">Nucleus</div>
           <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
             AI Product OS
           </div>
         </div>
-      </div>
+      </button>
 
       <div className="mt-6 flex-1 space-y-1">
         <div className="px-2 pb-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
@@ -117,14 +118,7 @@ export function Sidebar() {
         </p>
       </div>
 
-      <div className="mt-3 space-y-1">
-        <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-muted-foreground hover:text-foreground">
-          <Settings className="h-4 w-4" /> Settings
-        </button>
-        <button className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-muted-foreground hover:text-foreground">
-          <LifeBuoy className="h-4 w-4" /> Support
-        </button>
-      </div>
+
     </aside>
     </>
   );

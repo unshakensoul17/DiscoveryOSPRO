@@ -51,9 +51,23 @@ export function HeroPanel({ activeHypothesesCount, unresolvedRisksCount, avgConf
               className="mt-5 text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl"
             >
               Your AI product{" "}
-              <span className="bg-[var(--gradient-red)] bg-clip-text text-transparent text-glow">
+              <motion.span 
+                animate={{ 
+                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                  filter: ["brightness(1)", "brightness(1.3)", "brightness(1)"]
+                }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="text-transparent text-glow"
+                style={{ 
+                  backgroundImage: 'var(--gradient-red)',
+                  backgroundSize: '200% 200%',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  display: 'inline-block'
+                }}
+              >
                 brain
-              </span>
+              </motion.span>
               ,<br />
               always thinking.
             </motion.h1>

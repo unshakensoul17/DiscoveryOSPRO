@@ -236,7 +236,7 @@ export default function IngestionPage() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
   }
 
-  const inputClass = "w-full glass-strong rounded-xl px-3 py-2.5 text-sm text-foreground placeholder-[var(--muted-foreground)] focus:outline-none focus:border-[rgba(255,26,26,0.5)] transition-colors"
+  const inputClass = "w-full glass-strong rounded-xl px-3 py-2.5 text-sm text-foreground placeholder-[var(--muted-foreground)] focus:outline-none focus:border-[rgba(255,26,26,0.5)] transition-colors [&>option]:bg-zinc-900 [&>option]:text-white"
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
@@ -392,7 +392,7 @@ export default function IngestionPage() {
                 </label>
                 <select value={selectedWsId} onChange={(e) => setSelectedWsId(e.target.value)} className={inputClass}>
                   {workspaces.map((ws) => (
-                    <option key={ws.id} value={ws.id}>{ws.name} {ws.id === workspaceId ? '(Current)' : ''}</option>
+                    <option className="bg-zinc-900 text-white" key={ws.id} value={ws.id}>{ws.name} {ws.id === workspaceId ? '(Current)' : ''}</option>
                   ))}
                 </select>
               </div>
@@ -411,10 +411,10 @@ export default function IngestionPage() {
                   Hypothesis Claim Type
                 </label>
                 <select value={claimType} onChange={(e) => setClaimType(e.target.value)} className={inputClass}>
-                  <option value="strategic_belief">Strategic Belief</option>
-                  <option value="assumption">Assumption</option>
-                  <option value="metric">Metric</option>
-                  <option value="operational_fact">Operational Fact</option>
+                  <option className="bg-zinc-900 text-white" value="strategic_belief">Strategic Belief</option>
+                  <option className="bg-zinc-900 text-white" value="assumption">Assumption</option>
+                  <option className="bg-zinc-900 text-white" value="metric">Metric</option>
+                  <option className="bg-zinc-900 text-white" value="operational_fact">Operational Fact</option>
                 </select>
               </div>
 
