@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { GlassCard } from "./GlassCard";
-import { TrendingUp, AlertTriangle, Users, Globe2, Lightbulb, Clock, ShieldAlert, Crosshair, Search } from "lucide-react";
+import { TrendingUp, AlertTriangle, Lightbulb, Clock, ShieldAlert, Crosshair, Search } from "lucide-react";
 import type { Discovery } from "../../types";
 
 interface DiscoveriesInsightsProps {

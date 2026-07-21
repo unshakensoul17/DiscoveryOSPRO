@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowUpRight, Sparkles, Activity, AlertTriangle, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, Activity, AlertTriangle, ShieldCheck } from "lucide-react";
 import { GlassCard } from "./GlassCard";
 import { useNavigate, useParams } from "react-router-dom";
 import { useUIStore } from "../../store/ui";

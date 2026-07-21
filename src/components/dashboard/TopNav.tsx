@@ -1,4 +1,4 @@
-import { Bell, Command, Search, Plus, Download, Menu } from "lucide-react";
+import { Plus, Download, Menu } from "lucide-react";
 import { motion } from "framer-motion";
 import { useUIStore } from "../../store/ui";
 import { useWorkspaceStore } from "../../store/workspace";

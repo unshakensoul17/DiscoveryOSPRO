@@ -28,7 +28,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
           setWorkspaces([{
             id: 'ws-1', name: 'Test Workspace', description: 'Primary', created_by: 'u-1',
             created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-            member_count: 5, role: 'admin', config: {}
+            member_count: 5, role: 'admin', config: {
+              evidence_weights: { report: 0.8, survey: 0.6 },
+              stale_threshold_days: 30,
+              confidence_decay_rate: 0.05
+            }
           }])
         })
     }

@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useClaimsQuery, useDiscoveriesQuery } from '../api/hooks'
-import { useUIStore } from '../store/ui'
+
 import { HeroPanel } from '../components/dashboard/HeroPanel'
 import { DiscoveriesInsights } from '../components/dashboard/DiscoveriesInsights'
 import { HypothesesOverview } from '../components/dashboard/HypothesesOverview'
@@ -10,7 +10,7 @@ import { motion } from 'framer-motion'
 export default function DashboardPage() {
   const { workspaceId } = useParams<{ workspaceId: string }>()
   const navigate = useNavigate()
-  const { openUploadModal, openCreateClaimModal, setActiveNav } = useUIStore()
+
   const wsId = workspaceId || ''
 
   const { data: claims      = [], isLoading: loadingClaims }      = useClaimsQuery(wsId)

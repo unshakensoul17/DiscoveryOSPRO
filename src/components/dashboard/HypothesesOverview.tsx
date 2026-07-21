@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { GlassCard } from "./GlassCard";
-import { TrendingUp, AlertTriangle, CheckCircle2, Search } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Search } from "lucide-react";
 import type { Claim } from "../../types";
 
 interface HypothesesOverviewProps {

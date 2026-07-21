@@ -47,7 +47,7 @@ export default function DiscoveryDetail({ discoveryId }: DiscoveryDetailProps) {
   const { workspaceId } = useParams<{ workspaceId: string }>()
   const navigate = useNavigate()
   const dismissMutation = useDismissDiscovery(workspaceId || '')
-  const [campaignActive, setCampaignActive] = useState(false)
+  const [campaignActive] = useState(false)
 
   // For details, we can find it in the discoveries query cache
   const { data: discoveries = [] } = useDiscoveriesQuery(workspaceId || '')
@@ -70,7 +70,7 @@ export default function DiscoveryDetail({ discoveryId }: DiscoveryDetailProps) {
   const label = TYPE_LABELS[displayDiscovery.type] || displayDiscovery.type.replace(/_/g, ' ')
   
   const effortConfig = EFFORT_MAP[displayDiscovery.type] || { effort: 'medium', hours: 10 }
-  const approachText = displayDiscovery.metadata?.recommended_action || APPROACH_MAP[displayDiscovery.type] || "Collect fresh qualitative evidence and run cross-reference reviews."
+  const approachText = (displayDiscovery.metadata as any)?.recommended_action || APPROACH_MAP[displayDiscovery.type] || "Collect fresh qualitative evidence and run cross-reference reviews."
   const evidenceText = EVIDENCE_MAP[displayDiscovery.type] || "Documented validation artifact or updated confidence scoring metrics."
 
   return (
@@ -116,19 +116,19 @@ export default function DiscoveryDetail({ discoveryId }: DiscoveryDetailProps) {
               Risk Level
             </span>
             <div className="flex items-center gap-2">
-              {displayDiscovery.metadata?.previous_confidence && (
+              {(displayDiscovery.metadata as any)?.previous_confidence && (
                 <>
                   <span className="text-xl font-extrabold text-muted-foreground line-through opacity-70">
-                    {displayDiscovery.metadata.previous_confidence}%
+                    {(displayDiscovery.metadata as any).previous_confidence}%
                   </span>
                   <span className="text-muted-foreground">➔</span>
                 </>
               )}
               <span className="text-xl font-extrabold text-[var(--primary)]">
-                {displayDiscovery.metadata?.new_confidence || Math.round(displayDiscovery.severity * 100)}%
+                {(displayDiscovery.metadata as any)?.new_confidence || Math.round(displayDiscovery.severity * 100)}%
               </span>
             </div>
-            {displayDiscovery.metadata?.previous_confidence && (
+            {(displayDiscovery.metadata as any)?.previous_confidence && (
               <span className="text-[8px] text-[var(--primary)] mt-1 block uppercase tracking-widest">
                 Confidence Dropped Due to Evidence
               </span>
@@ -146,22 +146,22 @@ export default function DiscoveryDetail({ discoveryId }: DiscoveryDetailProps) {
         </div>
 
         {/* Conflict Details */}
-        {displayDiscovery.metadata && (
+        {(displayDiscovery.metadata as any) && (
           <div className="space-y-4">
             <h4 className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-widest">
               Conflicting Hypotheses
             </h4>
             <div className="space-y-3 text-xs leading-relaxed">
-              {displayDiscovery.metadata.claim_1 && (
+              {(displayDiscovery.metadata as any).claim_1 && (
                 <div className="p-4 glass border border-[rgba(255,26,26,0.2)] rounded-xl">
                   <span className="font-mono text-[9px] text-blue-400 font-semibold block mb-2 uppercase tracking-widest">Hypothesis A:</span>
-                  <p className="text-foreground font-light">{displayDiscovery.metadata.claim_1}</p>
+                  <p className="text-foreground font-light">{(displayDiscovery.metadata as any).claim_1}</p>
                 </div>
               )}
-              {displayDiscovery.metadata.claim_2 && (
+              {(displayDiscovery.metadata as any).claim_2 && (
                 <div className="p-4 glass border border-[rgba(255,26,26,0.4)] bg-[rgba(255,26,26,0.05)] rounded-xl">
                   <span className="font-mono text-[9px] text-[var(--primary)] font-semibold block mb-2 uppercase tracking-widest">Hypothesis B:</span>
-                  <p className="text-foreground font-light">{displayDiscovery.metadata.claim_2}</p>
+                  <p className="text-foreground font-light">{(displayDiscovery.metadata as any).claim_2}</p>
                 </div>
               )}
             </div>
@@ -169,13 +169,13 @@ export default function DiscoveryDetail({ discoveryId }: DiscoveryDetailProps) {
         )}
 
         {/* Affected Decisions */}
-        {displayDiscovery.metadata?.affected_decisions && (
+        {(displayDiscovery.metadata as any)?.affected_decisions && (
           <div className="space-y-4">
             <h4 className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-widest">
               Affected Decisions
             </h4>
             <div className="space-y-2">
-              {displayDiscovery.metadata.affected_decisions.map((decision: any, idx: number) => (
+              {(displayDiscovery.metadata as any).affected_decisions.map((decision: any, idx: number) => (
                 <div key={idx} className="flex items-center justify-between p-3 glass border border-white/10 rounded-xl">
                   <span className="text-xs text-foreground font-semibold">{decision.decision}</span>
                   <span className={`text-[9px] font-mono px-2 py-0.5 rounded border uppercase tracking-widest ${
@@ -255,8 +255,8 @@ export default function DiscoveryDetail({ discoveryId }: DiscoveryDetailProps) {
           </button>
           <button
             onClick={() => {
-              const query = displayDiscovery.metadata?.claim_1 && displayDiscovery.metadata?.claim_2
-                ? `Investigate this contradiction: Hypothesis A ("${displayDiscovery.metadata.claim_1}") vs Hypothesis B ("${displayDiscovery.metadata.claim_2}")`
+              const query = (displayDiscovery.metadata as any)?.claim_1 && (displayDiscovery.metadata as any)?.claim_2
+                ? `Investigate this contradiction: Hypothesis A ("${(displayDiscovery.metadata as any).claim_1}") vs Hypothesis B ("${(displayDiscovery.metadata as any).claim_2}")`
                 : `Investigate this risk: ${displayDiscovery.description}`
               
               navigate(`/workspaces/${workspaceId}/graph`, { state: { initialQuery: query } })
