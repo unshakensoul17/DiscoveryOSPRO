@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom'
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 import { useAuthStore } from './store/auth'
 
@@ -19,6 +19,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />
 }
 
+function RedirectToDashboard() {
+  const { workspaceId } = useParams<{ workspaceId: string }>()
+  return <Navigate to={`/workspaces/${workspaceId}/dashboard`} replace />
+}
+
 export default function App() {
   useEffect(() => {
     const tokens = localStorage.getItem('tokens')
@@ -27,12 +32,16 @@ export default function App() {
   
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           
           <Route path="/workspaces" element={<ProtectedRoute><WorkspacesPage /></ProtectedRoute>} />
           
+          <Route path="/workspaces/:workspaceId" element={
+            <ProtectedRoute><RedirectToDashboard /></ProtectedRoute>
+          } />
+
           <Route path="/workspaces/:workspaceId/dashboard" element={
             <ProtectedRoute><AppLayout><DashboardPage /></AppLayout></ProtectedRoute>
           } />

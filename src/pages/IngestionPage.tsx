@@ -236,30 +236,33 @@ export default function IngestionPage() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
   }
 
+  const inputClass = "w-full glass-strong rounded-xl px-3 py-2.5 text-sm text-foreground placeholder-[var(--muted-foreground)] focus:outline-none focus:border-[rgba(255,26,26,0.5)] transition-colors"
+
   return (
-    <div className="space-y-8 p-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header */}
-      <div className="pb-6 border-b border-[#E2E8F0]">
-        <div className="text-[10px] font-mono font-semibold text-slate-500 uppercase tracking-widest mb-1.5">
+      <div>
+        <div className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-widest mb-1">
           Workspace Operations
         </div>
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Ingestion & Pipelines</h1>
-        <p className="text-slate-400 text-xs mt-0.5 font-light">
+        <h1 className="text-2xl font-bold tracking-tight text-glow" style={{ background: 'var(--gradient-red)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          Ingestion & Pipelines
+        </h1>
+        <p className="text-muted-foreground text-xs mt-0.5 font-light">
           Upload unstructured research documents and inject strategic hypotheses to drive the discovery engine.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* LEFT COLUMN: Data Ingestion (8 Cols on LG) */}
-        <div className="lg:col-span-7 space-y-6">
+        {/* LEFT: File Ingestion */}
+        <div className="lg:col-span-7 space-y-5">
           
-          {/* File Upload Box */}
-          <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-xl p-5 shadow-lg">
-            <h2 className="text-sm font-bold text-slate-900 mb-1.5 flex items-center gap-2">
+          <div className="glass rounded-2xl p-5">
+            <h2 className="text-sm font-bold mb-1 flex items-center gap-2">
               <span>📥</span> Ingest Unstructured Feedback
             </h2>
-            <p className="text-slate-400 text-xs mb-4 font-light leading-relaxed">
+            <p className="text-muted-foreground text-xs mb-4 font-light leading-relaxed">
               Drop transcripts, notes, or research documents here to extract pain points and evidence.
             </p>
 
@@ -269,120 +272,97 @@ export default function IngestionPage() {
                 onDrop={handleDrop}
                 className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer transition-all ${
                   file 
-                    ? 'border-blue-500/80 bg-blue-950/5' 
-                    : 'border-[#CBD5E1] hover:border-slate-600 bg-slate-50'
+                    ? 'border-[rgba(255,26,26,0.5)] bg-[rgba(255,26,26,0.05)]'
+                    : 'border-white/15 hover:border-[rgba(255,26,26,0.3)] bg-white/[0.03]'
                 }`}
               >
-                <input
-                  type="file"
-                  id="doc-file"
-                  onChange={handleFileChange}
-                  className="hidden"
-                  accept=".txt,.json,.pdf,.csv"
-                />
-                <label htmlFor="doc-file" className="cursor-pointer flex flex-col items-center">
-                  <div className="w-10 h-10 rounded-full bg-slate-100 border border-[#E2E8F0] flex items-center justify-center text-slate-400 mb-3 group-hover:text-slate-900 transition-colors">
+                <input type="file" id="doc-file" onChange={handleFileChange} className="hidden" accept=".txt,.json,.pdf,.csv" />
+                <label htmlFor="doc-file" className="cursor-pointer flex flex-col items-center gap-3">
+                  <div className={`w-10 h-10 rounded-full glass-strong flex items-center justify-center transition-colors ${file ? 'text-[var(--primary)]' : 'text-muted-foreground'}`}>
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
                   </div>
-                  
                   {file ? (
                     <div className="text-center">
-                      <span className="text-xs font-semibold text-blue-400 block truncate max-w-xs">{file.name}</span>
-                      <span className="text-[10px] text-slate-500 block mt-1">({formatBytes(file.size)})</span>
+                      <span className="text-xs font-semibold text-[var(--primary)] block truncate max-w-xs">{file.name}</span>
+                      <span className="text-[10px] text-muted-foreground block mt-1">({formatBytes(file.size)})</span>
                     </div>
                   ) : (
                     <div className="text-center">
-                      <span className="text-xs font-semibold text-slate-700 block">Click to upload or drag & drop</span>
-                      <span className="text-[10px] text-slate-500 block mt-1">Accepts PDF, JSON, TXT, CSV up to 10MB</span>
+                      <span className="text-xs font-semibold block">Click to upload or drag & drop</span>
+                      <span className="text-[10px] text-muted-foreground block mt-1">Accepts PDF, JSON, TXT, CSV up to 10MB</span>
                     </div>
                   )}
                 </label>
               </div>
 
-              {/* Progress Bar & Status */}
               {uploadStatus !== 'idle' && (
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-[10px] font-mono">
-                    <span className="text-slate-400 capitalize">Status: {uploadStatus}</span>
-                    <span className="text-blue-400">{progress}%</span>
+                    <span className="text-muted-foreground capitalize">Status: {uploadStatus}</span>
+                    <span className="text-[var(--primary)]">{progress}%</span>
                   </div>
-                  <div className="w-full bg-[#F1F5F9] h-1 rounded-full overflow-hidden border border-[#CBD5E1]">
-                    <div 
-                      className="bg-gradient-to-r from-blue-500 to-indigo-500 h-full transition-all duration-350"
-                      style={{ width: `${progress}%` }}
-                    />
+                  <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                    <div className="bg-[var(--gradient-red)] h-full transition-all duration-350 rounded-full" style={{ width: `${progress}%` }} />
                   </div>
                 </div>
               )}
 
-              {/* Logs Terminal */}
               {logs.length > 0 && (
-                <div className="bg-slate-950/80 border border-[#E2E8F0] rounded-lg p-3 font-mono text-[9px] text-slate-400 max-h-32 overflow-y-auto space-y-1">
+                <div className="glass-strong rounded-xl p-3 font-mono text-[9px] text-muted-foreground max-h-32 overflow-y-auto space-y-1">
                   {logs.map((logStr, idx) => (
-                    <div key={idx} className={logStr.includes('Error') ? 'text-red-400' : logStr.includes('Success') ? 'text-emerald-400' : 'text-slate-400'}>
+                    <div key={idx} className={logStr.includes('Error') ? 'text-[var(--primary)]' : logStr.includes('Success') ? 'text-emerald-400' : ''}>
                       {logStr}
                     </div>
                   ))}
                 </div>
               )}
 
-              <div className="flex justify-end gap-3 pt-2">
+              <div className="flex justify-end gap-3 pt-2 border-t border-white/10">
                 {file && (
-                  <button
-                    type="button"
-                    onClick={() => { setFile(null); setUploadStatus('idle'); setLogs([]); }}
-                    className="px-3.5 py-2 bg-slate-100 border border-[#E2E8F0] hover:border-slate-300 text-slate-700 font-semibold rounded-lg text-xs transition-colors"
-                  >
+                  <button type="button" onClick={() => { setFile(null); setUploadStatus('idle'); setLogs([]); }}
+                    className="px-3.5 py-2 glass-strong hover:bg-white/10 text-muted-foreground font-semibold rounded-xl text-xs transition-colors">
                     Clear File
                   </button>
                 )}
-                <button
-                  type="submit"
-                  disabled={!file || uploadStatus === 'uploading' || uploadStatus === 'processing'}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-[#1C2335] disabled:text-slate-500 font-semibold rounded-lg text-xs transition-colors shadow-md shadow-blue-600/10"
-                >
-                  {uploadStatus === 'uploading' ? 'Uploading...' : uploadStatus === 'processing' ? 'Processing...' : 'Run Pipeline ⚙️'}
+                <button type="submit" disabled={!file || uploadStatus === 'uploading' || uploadStatus === 'processing'}
+                  className="px-4 py-2 bg-[var(--gradient-red)] disabled:opacity-40 text-white font-semibold rounded-xl text-xs transition-transform red-glow hover:scale-[1.02]">
+                  {uploadStatus === 'uploading' ? 'Uploading...' : uploadStatus === 'processing' ? 'Processing...' : 'Run Pipeline ⚡'}
                 </button>
               </div>
             </form>
           </div>
 
-          {/* Document Ingestion List */}
-          <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-xl p-5 shadow-lg">
-            <h2 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+          {/* Documents History */}
+          <div className="glass rounded-2xl p-5">
+            <h2 className="text-sm font-bold mb-3 flex items-center gap-2">
               <span>🗂️</span> Ingested Documents History
             </h2>
-            
             {docsLoading ? (
-              <div className="py-8 text-center text-xs text-slate-500 font-mono">Loading ingestion history...</div>
+              <div className="py-8 text-center text-xs text-muted-foreground font-mono">Loading ingestion history...</div>
             ) : docsList.length === 0 ? (
-              <div className="py-8 text-center text-xs text-slate-500 border border-dashed border-[#E2E8F0] rounded-lg">
+              <div className="py-8 text-center text-xs text-muted-foreground border border-dashed border-white/10 rounded-xl">
                 No documents ingested yet in this workspace.
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-[#E2E8F0]/60 text-[9px] font-mono text-slate-500 uppercase tracking-wider">
+                    <tr className="border-b border-white/10 text-[9px] font-mono text-muted-foreground uppercase tracking-wider">
                       <th className="pb-2 font-semibold">Title</th>
                       <th className="pb-2 font-semibold">Size</th>
                       <th className="pb-2 font-semibold">Format</th>
                       <th className="pb-2 font-semibold">Date Ingested</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#1E2538]/40">
+                  <tbody className="divide-y divide-white/5">
                     {docsList.map((doc) => (
-                      <tr key={doc.id} className="text-xs hover:bg-[#F1F5F9]/30 transition-colors">
-                        <td className="py-2.5 pr-4 font-semibold text-slate-700 truncate max-w-[200px]" title={doc.title}>
-                          {doc.title}
-                        </td>
-                        <td className="py-2.5 text-slate-400 font-mono text-[10px]">{formatBytes(doc.file_size)}</td>
-                        <td className="py-2.5 text-slate-400 font-mono text-[10px] uppercase">{doc.file_type.split('/')[1] || 'TXT'}</td>
-                        <td className="py-2.5 text-slate-500 font-mono text-[10px]">
-                          {doc.created_at ? new Date(doc.created_at).toLocaleDateString() : 'N/A'}
-                        </td>
+                      <tr key={doc.id} className="text-xs hover:bg-white/5 transition-colors">
+                        <td className="py-2.5 pr-4 font-semibold truncate max-w-[200px]" title={doc.title}>{doc.title}</td>
+                        <td className="py-2.5 text-muted-foreground font-mono text-[10px]">{formatBytes(doc.file_size)}</td>
+                        <td className="py-2.5 text-muted-foreground font-mono text-[10px] uppercase">{doc.file_type.split('/')[1] || 'TXT'}</td>
+                        <td className="py-2.5 text-muted-foreground font-mono text-[10px]">{doc.created_at ? new Date(doc.created_at).toLocaleDateString() : 'N/A'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -390,70 +370,47 @@ export default function IngestionPage() {
               </div>
             )}
           </div>
-
         </div>
 
-        {/* RIGHT COLUMN: Insert Insight Hypothesis Pipeline (5 Cols on LG) */}
-        <div className="lg:col-span-5 space-y-6">
-          
-          <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-xl p-5 shadow-lg h-full">
+        {/* RIGHT: Hypothesis Injection */}
+        <div className="lg:col-span-5">
+          <div className="glass rounded-2xl p-5 h-full">
             <div className="mb-4">
-              <span className="px-2 py-0.5 bg-blue-950/60 border border-blue-800/40 text-blue-400 rounded text-[9px] font-mono uppercase tracking-wider">
+              <span className="inline-flex items-center rounded-full border border-[rgba(255,26,26,0.35)] bg-[rgba(255,26,26,0.08)] px-2.5 py-1 text-[9px] font-mono text-[var(--primary)] uppercase tracking-wider">
                 Hypothesis Pipeline
               </span>
             </div>
-            
-            <h2 className="text-sm font-bold text-slate-900 mb-1.5 flex items-center gap-2">
-              <span>➕</span> Inject Hypothesis Insight
-            </h2>
-            <p className="text-slate-400 text-xs mb-6 font-light leading-relaxed">
+            <h2 className="text-sm font-bold mb-1">➕ Inject Hypothesis Insight</h2>
+            <p className="text-muted-foreground text-xs mb-5 font-light leading-relaxed">
               Add user beliefs, metrics, and core assumptions. The agent will compare these hypotheses against incoming unstructured evidence.
             </p>
 
-            <form onSubmit={handleClaimSubmit} className="space-y-5">
-              {/* Workspace Selection Dropdown */}
+            <form onSubmit={handleClaimSubmit} className="space-y-4">
               <div>
-                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2 font-mono">
+                <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 font-mono">
                   Select Workspace Target
                 </label>
-                <select
-                  value={selectedWsId}
-                  onChange={(e) => setSelectedWsId(e.target.value)}
-                  className="w-full bg-[#F1F5F9] border border-[#CBD5E1] hover:border-slate-300 text-slate-900 rounded-lg px-3 py-2.5 text-xs focus:outline-none focus:border-blue-500/80 transition-colors cursor-pointer"
-                >
+                <select value={selectedWsId} onChange={(e) => setSelectedWsId(e.target.value)} className={inputClass}>
                   {workspaces.map((ws) => (
-                    <option key={ws.id} value={ws.id}>
-                      {ws.name} {ws.id === workspaceId ? '(Current)' : ''}
-                    </option>
+                    <option key={ws.id} value={ws.id}>{ws.name} {ws.id === workspaceId ? '(Current)' : ''}</option>
                   ))}
                 </select>
               </div>
 
-              {/* Statement Description input */}
               <div>
-                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2 font-mono">
+                <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 font-mono">
                   Statement Content
                 </label>
-                <textarea
-                  value={claimContent}
-                  onChange={(e) => setClaimContent(e.target.value)}
-                  rows={4}
-                  className="w-full bg-[#F1F5F9] border border-[#CBD5E1] text-slate-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-blue-500/80 resize-none placeholder-slate-600 transition-colors"
-                  placeholder="e.g. SMB users find the pricing interface confusing, leading to churn..."
-                  required
-                />
+                <textarea value={claimContent} onChange={(e) => setClaimContent(e.target.value)} rows={4}
+                  className={`${inputClass} resize-none h-24`}
+                  placeholder="e.g. SMB users find the pricing interface confusing, leading to churn..." required />
               </div>
 
-              {/* Hypothesis Type Dropdown */}
               <div>
-                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2 font-mono">
+                <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 font-mono">
                   Hypothesis Claim Type
                 </label>
-                <select
-                  value={claimType}
-                  onChange={(e) => setClaimType(e.target.value)}
-                  className="w-full bg-[#F1F5F9] border border-[#CBD5E1] text-slate-900 rounded-lg px-3 py-2.5 text-xs focus:outline-none focus:border-blue-500/80 transition-colors cursor-pointer"
-                >
+                <select value={claimType} onChange={(e) => setClaimType(e.target.value)} className={inputClass}>
                   <option value="strategic_belief">Strategic Belief</option>
                   <option value="assumption">Assumption</option>
                   <option value="metric">Metric</option>
@@ -461,49 +418,37 @@ export default function IngestionPage() {
                 </select>
               </div>
 
-              {/* Prior Confidence Slider */}
               <div>
                 <div className="flex justify-between items-center mb-2 font-mono text-[10px]">
-                  <span className="font-semibold text-slate-500 uppercase tracking-wider">
-                    Prior Confidence
-                  </span>
-                  <span className="text-blue-400 font-semibold">{Math.round(claimConfidence * 100)}%</span>
+                  <span className="font-semibold text-muted-foreground uppercase tracking-wider">Prior Confidence</span>
+                  <span className="text-[var(--primary)] font-semibold">{Math.round(claimConfidence * 100)}%</span>
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.05"
-                  value={claimConfidence}
+                <input type="range" min="0" max="1" step="0.05" value={claimConfidence}
                   onChange={(e) => setClaimConfidence(parseFloat(e.target.value))}
-                  className="w-full h-1 bg-[#F1F5F9] rounded-lg appearance-none cursor-pointer accent-blue-500 border border-[#CBD5E1]"
+                  className="w-full h-1 rounded-lg appearance-none cursor-pointer accent-red-500"
+                  style={{ background: `linear-gradient(to right, var(--primary) ${claimConfidence * 100}%, rgba(255,255,255,0.1) ${claimConfidence * 100}%)` }}
                 />
               </div>
 
               {claimStatus === 'success' && (
-                <div className="p-3 bg-emerald-950/40 border border-emerald-800/40 rounded-lg text-emerald-400 text-xs flex items-center gap-2">
+                <div className="p-3 bg-emerald-400/10 border border-emerald-400/30 rounded-xl text-emerald-400 text-xs flex items-center gap-2">
                   <span>✓</span> Hypothesis injected successfully into the pipeline!
                 </div>
               )}
-
               {claimStatus === 'error' && (
-                <div className="p-3 bg-red-950/40 border border-red-800/40 rounded-lg text-red-400 text-xs flex items-center gap-2">
+                <div className="p-3 bg-[rgba(255,26,26,0.1)] border border-[rgba(255,26,26,0.35)] rounded-xl text-[var(--primary)] text-xs flex items-center gap-2">
                   <span>✗</span> Ingestion pipeline failed to save hypothesis.
                 </div>
               )}
 
-              <div className="flex justify-end pt-3 border-t border-[#E2E8F0]">
-                <button
-                  type="submit"
-                  disabled={claimStatus === 'saving' || !claimContent.trim()}
-                  className="w-full py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 text-white font-semibold rounded-lg text-xs transition-colors shadow-md shadow-blue-600/10 flex items-center justify-center gap-1.5"
-                >
+              <div className="pt-3 border-t border-white/10">
+                <button type="submit" disabled={claimStatus === 'saving' || !claimContent.trim()}
+                  className="w-full py-2.5 bg-[var(--gradient-red)] disabled:opacity-40 text-white font-semibold rounded-xl text-xs transition-transform red-glow hover:scale-[1.01] flex items-center justify-center gap-1.5">
                   {claimStatus === 'saving' ? 'Injecting...' : 'Inject Hypothesis 🚀'}
                 </button>
               </div>
             </form>
           </div>
-
         </div>
 
       </div>

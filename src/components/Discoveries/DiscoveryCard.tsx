@@ -31,7 +31,7 @@ export default function DiscoveryCard({ discovery, onSelect }: DiscoveryCardProp
     <motion.div
       whileHover={{ y: -1 }}
       onClick={() => onSelect?.(discovery.id)}
-      className="p-4 rounded-xl border border-[#E2E8F0] bg-[#FFFFFF] hover:border-slate-300 hover:bg-[#F8FAFC] transition-all cursor-pointer"
+      className="p-4 rounded-xl border border-white/10 glass hover:border-[rgba(255,26,26,0.3)] hover:bg-white/[0.04] transition-all cursor-pointer hover:shadow-lg hover:shadow-[rgba(255,26,26,0.1)] group"
     >
       {/* Type badge */}
       <div className={`inline-block px-2.5 py-0.5 rounded text-[9px] font-mono font-bold border mb-3 uppercase tracking-wider ${colorClass}`}>
@@ -39,20 +39,20 @@ export default function DiscoveryCard({ discovery, onSelect }: DiscoveryCardProp
       </div>
       
       {/* Description */}
-      <p className="text-xs text-slate-800 font-light leading-relaxed mb-4 line-clamp-2">{discovery.description}</p>
+      <p className="text-xs text-foreground font-light leading-relaxed mb-4 line-clamp-2">{discovery.description}</p>
       
       {/* Severity bar */}
       <div className="mb-4">
-        <div className="flex items-center justify-between mb-1 text-[9px] font-mono">
-          <span className="text-slate-500 uppercase font-semibold">Risk Exposure Level</span>
-          <span className="text-slate-400 font-bold">
+        <div className="flex items-center justify-between mb-1.5 text-[9px] font-mono uppercase tracking-wider">
+          <span className="text-muted-foreground font-semibold">Risk Exposure Level</span>
+          <span className="text-[var(--primary)] font-bold">
             {Math.round(discovery.severity * 100)}%
           </span>
         </div>
-        <div className="w-full h-1 bg-slate-100 border border-[#E2E8F0] rounded-full overflow-hidden">
+        <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
           <div
             className={`h-full transition-all ${
-              discovery.severity > 0.7 ? 'bg-red-500' : discovery.severity > 0.4 ? 'bg-amber-500' : 'bg-blue-500'
+              discovery.severity > 0.7 ? 'bg-[var(--primary)] shadow-[0_0_8px_rgba(255,26,26,0.6)]' : discovery.severity > 0.4 ? 'bg-amber-500' : 'bg-blue-500'
             }`}
             style={{ width: `${discovery.severity * 100}%` }}
           />
@@ -60,15 +60,15 @@ export default function DiscoveryCard({ discovery, onSelect }: DiscoveryCardProp
       </div>
       
       {/* Status and date */}
-      <div className="flex items-center justify-between text-[9px] font-mono text-slate-500 pt-3 border-t border-[#E2E8F0]/60">
-        <span className={`px-2 py-0.5 rounded border uppercase font-bold text-[8px] tracking-wider ${
+      <div className="flex items-center justify-between text-[9px] font-mono text-muted-foreground pt-3 border-t border-white/10">
+        <span className={`px-2 py-0.5 rounded border uppercase font-bold text-[8px] tracking-widest ${
           discovery.status === 'active'
-            ? 'bg-red-950/20 text-red-400 border-red-900/40'
-            : 'bg-slate-100 text-slate-400 border-[#E2E8F0]'
+            ? 'bg-[rgba(255,26,26,0.1)] text-[var(--primary)] border-[rgba(255,26,26,0.3)]'
+            : 'bg-white/5 text-muted-foreground border-white/10'
         }`}>
           {discovery.status}
         </span>
-        <span>{new Date(discovery.detected_at).toLocaleDateString()}</span>
+        <span className="tracking-widest">{new Date(discovery.detected_at).toLocaleDateString()}</span>
       </div>
     </motion.div>
   )

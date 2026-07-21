@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { useUIStore } from '../../store/ui'
 import { apiClient } from '../../api/client'
+import { X, Upload } from 'lucide-react'
 
 export default function UploadModal() {
   const { uploadModalOpen, closeUploadModal } = useUIStore()
@@ -16,9 +17,7 @@ export default function UploadModal() {
 
   if (!uploadModalOpen) return null
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-  }
+  const handleDragOver = (e: React.DragEvent) => e.preventDefault()
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
@@ -33,45 +32,26 @@ export default function UploadModal() {
     }
   }
 
-  const addLog = (message: string, delay: number) => {
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        setLog((prev) => [...prev, `[${new Date().toLocaleTimeString()}] ${message}`])
-        resolve()
-      }, delay)
-    })
-  }
+  const addLog = (message: string, delay: number) =>
+    new Promise<void>((resolve) => setTimeout(() => {
+      setLog((prev) => [...prev, `[${new Date().toLocaleTimeString()}] ${message}`])
+      resolve()
+    }, delay))
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!file || !workspaceId) return
-
     try {
       setStatus('uploading')
       setProgress(10)
-      
       const formData = new FormData()
       formData.append('file', file)
-      
-      // Upload to actual backend endpoint
-      await apiClient.post(
-        `/workspaces/${workspaceId}/documents/ingest`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          },
-          onUploadProgress: (progressEvent: any) => {
-            const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1))
-            setProgress(Math.min(85, percentCompleted)) // Reserve final percentage for processing
-          }
-        }
-      )
-
+      await apiClient.post(`/workspaces/${workspaceId}/documents/ingest`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: (e: any) => setProgress(Math.min(85, Math.round((e.loaded * 100) / (e.total || 1))))
+      })
       setProgress(100)
       setStatus('processing')
-      
-      // Live processing logs simulation
       await addLog("Targeting ingestion pipelines...", 100)
       await addLog(`File schema verified: ${file.name} (${Math.round(file.size / 1024)} KB)`, 300)
       await addLog("Extracting raw semantic chunks via parse agents...", 500)
@@ -79,115 +59,95 @@ export default function UploadModal() {
       await addLog("Evidence synthesis running: cross-examining workspace belief network...", 700)
       await addLog("Calculated potential claims, active contradictions exposed.", 600)
       await addLog("Knowledge State updated. Syncing clients...", 400)
-      
       setStatus('done')
-      
-      // Invalidate queries to refresh workspace dashboards, claims, discoveries, and research lists
       queryClient.invalidateQueries({ queryKey: ['claims', workspaceId] })
       queryClient.invalidateQueries({ queryKey: ['discoveries', workspaceId] })
       queryClient.invalidateQueries({ queryKey: ['research', workspaceId] })
     } catch (err: any) {
-      console.error(err)
       setStatus('idle')
       alert("Failed to upload document: " + (err.response?.data?.detail || err.message))
     }
   }
 
   const handleReset = () => {
-    setFile(null)
-    setStatus('idle')
-    setProgress(0)
-    setLog([])
+    setFile(null); setStatus('idle'); setProgress(0); setLog([])
     closeUploadModal()
   }
 
   return (
-    <div className="fixed inset-0 bg-[#F9F9FB]/85 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
-      <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-2xl p-6 w-full max-w-lg shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50">
+      <div className="glass rounded-2xl p-6 w-full max-w-lg relative shadow-2xl border border-white/10">
         
-        {/* Close Button */}
-        <button
-          onClick={handleReset}
-          className="absolute top-4 right-4 text-slate-500 hover:text-slate-700 transition-colors p-1"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        {/* Glow */}
+        <div className="pointer-events-none absolute -top-12 -left-12 h-40 w-40 rounded-full bg-[radial-gradient(circle,rgba(255,26,26,0.2),transparent_60%)] blur-2xl" />
 
-        <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
-          <span>📁</span> Ingest Research Document
-        </h3>
-        <p className="text-xs text-slate-400 mb-6 font-light leading-relaxed">
-          Upload PDF, DOCX, or JSON data. DiscoveryOS will parse, chunk, embed, and update claims.
-        </p>
+        {/* Header */}
+        <div className="flex items-start justify-between mb-5">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(255,26,26,0.35)] bg-[rgba(255,26,26,0.08)] px-2.5 py-1 text-[10px] font-medium text-[var(--primary)] mb-2">
+              <Upload className="h-3 w-3" /> Ingest Pipeline
+            </div>
+            <h3 className="text-lg font-bold">Ingest Research Document</h3>
+            <p className="text-xs text-muted-foreground mt-1 font-light">
+              Upload PDF, DOCX, or JSON data. DiscoveryOS will parse, chunk, embed, and update claims.
+            </p>
+          </div>
+          <button onClick={handleReset} className="text-muted-foreground hover:text-foreground transition-colors p-1 ml-4">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
         {status === 'idle' && (
           <form onSubmit={handleUpload} className="space-y-4">
             <div
               onDragOver={handleDragOver}
               onDrop={handleDrop}
-              className="border border-dashed border-[#CBD5E1] hover:border-blue-500/40 bg-slate-50 rounded-xl p-8 flex flex-col justify-center items-center text-center cursor-pointer transition-colors group relative"
+              className="border border-dashed border-white/20 hover:border-[rgba(255,26,26,0.4)] rounded-xl p-8 flex flex-col justify-center items-center text-center cursor-pointer transition-colors group relative glass-strong"
             >
-              <input
-                type="file"
-                onChange={handleFileChange}
-                className="absolute inset-0 opacity-0 cursor-pointer"
-                accept=".pdf,.docx,.json,.txt"
-              />
-              <span className="text-3xl mb-3 text-slate-500 group-hover:scale-110 transition-transform duration-200">
+              <input type="file" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf,.docx,.json,.txt" />
+              <span className="text-3xl mb-3 group-hover:scale-110 transition-transform duration-200">
                 {file ? '📄' : '📥'}
               </span>
-              <h4 className="text-sm font-semibold text-slate-800 group-hover:text-blue-400 transition-colors">
-                {file ? file.name : 'Select or drop document here'}
+              <h4 className="text-sm font-semibold group-hover:text-[var(--primary)] transition-colors">
+                {file ? file.name : 'Click to upload or drag & drop'}
               </h4>
-              <p className="text-[10px] text-slate-500 mt-1 font-mono">
-                {file ? `${Math.round(file.size / 1024)} KB` : 'Maximum payload 10MB'}
+              <p className="text-[10px] text-muted-foreground mt-1 font-mono">
+                {file ? `${Math.round(file.size / 1024)} KB` : 'Accepts PDF, JSON, TXT, CSV up to 10MB'}
               </p>
             </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-[#E2E8F0]">
-              <button
-                type="button"
-                onClick={closeUploadModal}
-                className="px-4 py-2 bg-slate-100 border border-[#E2E8F0] hover:border-slate-300 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition-colors"
-              >
+            <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+              <button type="button" onClick={closeUploadModal}
+                className="px-4 py-2 glass-strong hover:bg-white/10 text-foreground font-semibold rounded-xl text-xs transition-colors">
                 Cancel
               </button>
-              <button
-                type="submit"
-                disabled={!file}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-semibold rounded-lg text-xs transition-all shadow-md shadow-blue-600/10"
-              >
-                Ingest Payload
+              <button type="submit" disabled={!file}
+                className="px-4 py-2 bg-[var(--gradient-red)] disabled:opacity-40 text-white font-semibold rounded-xl text-xs transition-transform red-glow hover:scale-[1.02]">
+                Run Pipeline ⚡
               </button>
             </div>
           </form>
         )}
 
         {(status === 'uploading' || status === 'processing') && (
-          <div className="space-y-6">
+          <div className="space-y-5">
             <div className="space-y-2">
               <div className="flex justify-between text-xs font-mono">
-                <span className="text-slate-400">
+                <span className="text-muted-foreground">
                   {status === 'uploading' ? 'Streaming bits...' : 'Extracting Knowledge...'}
                 </span>
-                <span className="text-blue-400 font-semibold">{progress}%</span>
+                <span className="text-[var(--primary)] font-semibold">{progress}%</span>
               </div>
-              <div className="w-full h-1.5 bg-[#F1F5F9] rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-blue-500 rounded-full transition-all duration-300"
-                  style={{ width: `${progress}%` }}
-                />
+              <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full bg-[var(--gradient-red)] rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
               </div>
             </div>
-
-            <div className="bg-slate-100 border border-[#E2E8F0] rounded-xl p-4 h-48 overflow-y-auto font-mono text-[10px] text-slate-400 space-y-1.5 scrollbar-thin">
+            <div className="glass-strong rounded-xl p-4 h-48 overflow-y-auto font-mono text-[10px] text-muted-foreground space-y-1.5">
               {log.length === 0 ? (
-                <div className="text-slate-400 italic">Starting AI evidence synthesis logs...</div>
+                <div className="italic">Starting AI evidence synthesis logs...</div>
               ) : (
                 log.map((entry, idx) => (
-                  <div key={idx} className="animate-fade-in border-l border-blue-500/30 pl-2 leading-relaxed">
+                  <div key={idx} className="border-l border-[rgba(255,26,26,0.4)] pl-2 leading-relaxed">
                     {entry}
                   </div>
                 ))
@@ -198,22 +158,19 @@ export default function UploadModal() {
 
         {status === 'done' && (
           <div className="text-center py-6 space-y-4">
-            <span className="text-4xl">✓</span>
-            <div className="space-y-1">
-              <h4 className="text-base font-bold text-slate-900">Payload Ingested Successfully</h4>
-              <p className="text-xs text-slate-400 font-light">
+            <div className="text-4xl text-emerald-400">✓</div>
+            <div>
+              <h4 className="text-base font-bold">Payload Ingested Successfully</h4>
+              <p className="text-xs text-muted-foreground font-light mt-1">
                 DiscoveryEngine analysis completed. View new claims in Claims Explorer.
               </p>
             </div>
-            <button
-              onClick={handleReset}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-md shadow-blue-600/10"
-            >
+            <button onClick={handleReset}
+              className="px-6 py-2 bg-[var(--gradient-red)] text-white text-xs font-semibold rounded-xl transition-transform red-glow hover:scale-[1.02]">
               Acknowledge & Close
             </button>
           </div>
         )}
-
       </div>
     </div>
   )

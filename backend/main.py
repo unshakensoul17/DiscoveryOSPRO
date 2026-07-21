@@ -58,6 +58,12 @@ async def root():
     """Root endpoint."""
     return {"message": "DiscoveryOS API"}
 
+@app.get("/v1/reset-demo")
+async def reset_demo():
+    from seed_graph_data import seed_mock_data
+    ws_id = seed_mock_data()
+    return {"message": "Demo environment reset.", "workspace_id": ws_id}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
